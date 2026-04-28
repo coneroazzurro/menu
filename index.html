@@ -322,6 +322,33 @@ body {
 }
 .info-box strong { color: var(--sea-deep); }
 
+.dessert-notice {
+  background: linear-gradient(135deg, rgba(140,110,74,0.1) 0%, rgba(176,168,160,0.08) 100%);
+  border: 1px solid rgba(140,110,74,0.25);
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--sea-deep);
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+}
+.dessert-notice .dessert-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  font-style: normal;
+}
+.dessert-notice strong {
+  color: var(--accent-warm);
+  font-style: normal;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
+
 .allergen-legend {
   background: var(--sand);
   padding: 14px 16px;
@@ -1489,17 +1516,51 @@ body {
 /* ==================== STAMPA ==================== */
 #print-overlay { display: none; }
 
+/* Anteprima a schermo durante print-mode (utile per debug e fallback se window.print non parte) */
+body.print-mode {
+  background: #f5f5f5 !important;
+}
+body.print-mode > *:not(#print-overlay) {
+  display: none !important;
+}
+body.print-mode #print-overlay {
+  display: block !important;
+  background: white;
+  color: #1a1a1a;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  padding: 20px 24px;
+  font-size: 13px;
+  max-width: 800px;
+  margin: 20px auto;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+body.print-mode::before {
+  content: '↪ Anteprima di stampa attiva — Premi Ctrl+P / Cmd+P se la finestra di stampa non si è aperta. Premi Esc per chiudere.';
+  display: block;
+  background: #286098;
+  color: white;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 99999;
+}
+body.print-mode #print-overlay { margin-top: 60px; }
+
 @media print {
-  body.print-mode > *:not(#print-overlay) { display: none !important; }
+  body.print-mode { background: white !important; }
+  body.print-mode::before { display: none !important; }
   body.print-mode #print-overlay {
-    display: block !important;
-    background: white;
-    color: #1a1a1a;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    box-shadow: none;
+    margin: 0;
     padding: 12mm;
+    max-width: 100%;
+    border-radius: 0;
     font-size: 11pt;
   }
-  body.print-mode { background: white !important; }
   
   .print-page { max-width: 100%; }
   .print-header {
@@ -1706,6 +1767,12 @@ body {
 
     <!-- Sezioni piatti (renderizzate dinamicamente) -->
     <div id="menu-sections"></div>
+
+    <!-- Avviso dolce/frutta (compare solo se il menù è pubblicato) -->
+    <div id="dessert-notice" class="dessert-notice hidden">
+      <span class="dessert-icon">🍰</span>
+      <span data-html="true" data-it="La proposta di <strong>dolce</strong> e <strong>frutta</strong> verrà presentata direttamente a tavola, a fine pasto." data-en="The <strong>dessert</strong> and <strong>fruit</strong> selection will be presented at your table at the end of the meal.">La proposta di <strong>dolce</strong> e <strong>frutta</strong> verrà presentata direttamente a tavola, a fine pasto.</span>
+    </div>
 
     <!-- Legenda allergeni (popolata dinamicamente dai piatti del giorno) -->
     <div id="allergen-legend" class="allergen-legend"></div>
@@ -2347,7 +2414,13 @@ function setLang(lang) {
   document.getElementById('lang-it').classList.toggle('active', lang === 'it');
   document.getElementById('lang-en').classList.toggle('active', lang === 'en');
   document.querySelectorAll('[data-it]').forEach(el => {
-    el.textContent = el.dataset[lang];
+    // Se l'elemento ha data-html="true" usiamo innerHTML (per markup tipo <strong>, <em>...)
+    // altrimenti textContent (più sicuro, default)
+    if (el.dataset.html === 'true') {
+      el.innerHTML = el.dataset[lang];
+    } else {
+      el.textContent = el.dataset[lang];
+    }
   });
   document.querySelectorAll('[data-it-attr]').forEach(el => {
     const attr = el.dataset.itAttr;
@@ -2702,6 +2775,7 @@ function renderGuestMenu() {
     'intol-toggle-row',
     'guests-list-wrap',
     'filter-toggle-row',
+    'dessert-notice',
     'allergen-legend',
     'submit-wrap'
   ];
@@ -2746,6 +2820,7 @@ function renderGuestMenu() {
   // Menù pubblicato: mostra gli elementi del form
   document.getElementById('guest-info-box')?.classList.remove('hidden');
   document.getElementById('intol-toggle-row')?.classList.remove('hidden');
+  document.getElementById('dessert-notice')?.classList.remove('hidden');
   document.getElementById('allergen-legend')?.classList.remove('hidden');
   document.getElementById('submit-wrap')?.classList.remove('hidden');
   // guests-list-wrap e filter-toggle-row sono gestiti da altre funzioni in base allo stato
@@ -4744,11 +4819,19 @@ function renderOrders() {
           </div>
         `;
       }
+      // Badge "modificato" se l'ordine è stato editato dopo l'invio
+      let editedBadge = '';
+      if (o.editedAt) {
+        try {
+          const editTime = new Date(o.editedAt).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+          editedBadge = ` · <span style="color: var(--accent-warm); font-weight: 600;">✎ modificato alle ${editTime}</span>`;
+        } catch (e) {}
+      }
       card.innerHTML = `
         <div class="order-head" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
           <div style="flex: 1; min-width: 0;">
             <div class="order-family">Famiglia ${o.family}</div>
-            <div class="order-meta">${(o.adults || o.people || 0)} adulti · ${(o.children || 0)} bambini · inviato alle ${time}</div>
+            <div class="order-meta">${(o.adults || o.people || 0)} adulti · ${(o.children || 0)} bambini · inviato alle ${time}${editedBadge}</div>
           </div>
           <div style="display: flex; gap: 6px; flex-shrink: 0;">
             <button onclick="openEditOrderModal('${o._id}')" title="Modifica ordine" style="background: var(--sea-light); border: 1px solid var(--sea); color: var(--sea-deep); border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 12px; font-family: 'Inter', sans-serif;">✎ Modifica</button>
@@ -4963,6 +5046,7 @@ async function deleteOrder(firestoreId) {
 
 // === STAMPA con scelta tipologia ===
 let _printMode = 'aggregate'; // 'aggregate' | 'families' | 'both'
+let isPrinting = false;
 
 function printOrders() {
   document.getElementById('print-choice-modal').classList.remove('hidden');
@@ -4974,23 +5058,32 @@ function closePrintChoice() {
 
 function doPrint(mode) {
   _printMode = mode;
+  isPrinting = true;
   document.getElementById('print-choice-modal').classList.add('hidden');
+  // Costruisco l'overlay di stampa SUBITO
+  buildPrintOverlay(mode);
   // Aggiungo classe al body che attiva il foglio CSS print custom
   document.body.classList.add('print-mode');
   document.body.dataset.printMode = mode;
-  // Costruisco l'overlay di stampa
-  buildPrintOverlay(mode);
-  // Lascio renderizzare poi stampo
+  
+  // Listener "afterprint" per pulizia robusta
+  const cleanup = () => {
+    document.body.classList.remove('print-mode');
+    document.body.dataset.printMode = '';
+    const overlay = document.getElementById('print-overlay');
+    if (overlay) overlay.remove();
+    isPrinting = false;
+    window.removeEventListener('afterprint', cleanup);
+  };
+  window.addEventListener('afterprint', cleanup);
+  
+  // Chiamata sincrona a window.print()
+  window.print();
+  
+  // Fallback per browser che non emettono afterprint
   setTimeout(() => {
-    window.print();
-    // Pulizia dopo stampa
-    setTimeout(() => {
-      document.body.classList.remove('print-mode');
-      document.body.dataset.printMode = '';
-      const overlay = document.getElementById('print-overlay');
-      if (overlay) overlay.remove();
-    }, 500);
-  }, 100);
+    if (document.body.classList.contains('print-mode')) cleanup();
+  }, 2000);
 }
 
 function buildPrintOverlay(mode) {
@@ -5451,6 +5544,17 @@ Object.assign(window, {
   changeEditOrderQty, removeEditOrderRow, addEditOrderRow,
   confirmDeleteOrder, proceedToDeleteConfirm2, executeDeleteOrder, closeDeleteConfirm,
   closePrintChoice, doPrint
+});
+
+// Listener ESC per uscire dall'anteprima di stampa
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.body.classList.contains('print-mode')) {
+    document.body.classList.remove('print-mode');
+    document.body.dataset.printMode = '';
+    const overlay = document.getElementById('print-overlay');
+    if (overlay) overlay.remove();
+    isPrinting = false;
+  }
 });
 
 // Traduzione iniziale
