@@ -136,18 +136,18 @@ body {
 .date-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: var(--sand);
   border: 1px solid var(--line);
-  padding: 8px 16px;
+  padding: 12px 22px;
   border-radius: 100px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink-soft);
-  margin-bottom: 18px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 22px;
 }
 .date-pill .dot {
-  width: 6px; height: 6px;
+  width: 8px; height: 8px;
   border-radius: 50%;
   background: var(--accent-warm);
 }
@@ -1056,6 +1056,23 @@ body {
 .pizza-config-option.selected {
   border-color: var(--accent-warm);
   background: rgba(140,110,74,0.08);
+}
+.pizza-config-option.has-conflict {
+  border-color: rgba(161, 60, 60, 0.4);
+  background: rgba(161, 60, 60, 0.04);
+}
+.pizza-config-option.has-conflict.selected {
+  border-color: var(--accent-warm);
+  background: rgba(140,110,74,0.08);
+}
+.pizza-option-conflict {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--error);
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.02em;
 }
 .pizza-config-option .radio-dot {
   width: 16px;
@@ -3208,7 +3225,7 @@ function buildPizzaCard(scope) {
   card.innerHTML = `
     <div class="pizza-card-icon">🍕</div>
     <div class="pizza-card-content">
-      <div class="pizza-card-title">${currentLang === 'it' ? 'Pizza' : 'Pizza'}${scope === 'kid' ? ' Baby' : ''}</div>
+      <div class="pizza-card-title">${currentLang === 'it' ? 'Menù Pizza' : 'Pizza Menu'}${scope === 'kid' ? (currentLang === 'it' ? ' Bambini' : ' Kids') : ''}</div>
       <div class="pizza-card-sub">${currentLang === 'it' ? 'Scegli gusto e contorno' : 'Pick flavor and side'}</div>
     </div>
     <button class="pizza-add-btn" onclick="openPizzaModal('${scope}')" ${hasAnyFlavor ? '' : 'disabled style="opacity: 0.5; cursor: not-allowed;"'}>
@@ -3267,6 +3284,24 @@ function openPizzaModal(scope) {
   const body = document.getElementById('pizza-config-body');
   body.innerHTML = '';
   
+  // Helper per evidenziare allergeni in conflitto
+  const buildOptionContent = (item, isSide = false) => {
+    const itemName = currentLang === 'it' ? item.name_it : (item.name_en || item.name_it);
+    const conflicts = getConflictAllergens({ allergens: item.allergens || '' });
+    
+    let allergenHtml = '';
+    if (conflicts.length > 0) {
+      // Mostra "Contiene: X, Y" in rosso
+      const labels = conflicts.map(num => allergenNumToLabel(num)).join(', ');
+      allergenHtml = `<div class="pizza-option-conflict">${currentLang === 'it' ? 'Contiene' : 'Contains'}: ${labels}</div>`;
+    } else if (item.allergens) {
+      // Mostra solo i numeri degli allergeni in piccolo (info neutra)
+      allergenHtml = `<span class="allergens">(${item.allergens})</span>`;
+    }
+    
+    return { itemName, allergenHtml, hasConflict: conflicts.length > 0 };
+  };
+  
   // CONTORNI (sopra come da specifica)
   if (sideList.length > 0) {
     const sidesSection = document.createElement('div');
@@ -3275,7 +3310,7 @@ function openPizzaModal(scope) {
     const sidesList = document.createElement('div');
     sidesList.className = 'pizza-config-list';
     
-    // Opzione "nessuno"
+    // Opzione "nessuno" sempre selezionata di default
     const noneOpt = document.createElement('div');
     noneOpt.className = 'pizza-config-option selected';
     noneOpt.dataset.kind = 'side';
@@ -3289,17 +3324,16 @@ function openPizzaModal(scope) {
     
     sideList.forEach((side, idx) => {
       const opt = document.createElement('div');
-      opt.className = 'pizza-config-option';
+      const { itemName, allergenHtml, hasConflict } = buildOptionContent(side, true);
+      opt.className = 'pizza-config-option' + (hasConflict ? ' has-conflict' : '');
       opt.dataset.kind = 'side';
       opt.dataset.idx = idx;
-      const sideName = currentLang === 'it' ? side.name_it : (side.name_en || side.name_it);
-      const allergensTxt = side.allergens 
-        ? `<span class="allergens">(${side.allergens})</span>` 
-        : '';
       opt.innerHTML = `
         <div class="radio-dot"></div>
-        <div class="name">${sideName}</div>
-        ${allergensTxt}
+        <div style="flex: 1; min-width: 0;">
+          <div class="name">${itemName}</div>
+          ${allergenHtml}
+        </div>
       `;
       opt.onclick = () => selectPizzaOption('side', idx);
       sidesList.appendChild(opt);
@@ -3317,17 +3351,16 @@ function openPizzaModal(scope) {
   
   flavorList.forEach((flavor, idx) => {
     const opt = document.createElement('div');
-    opt.className = 'pizza-config-option';
+    const { itemName, allergenHtml, hasConflict } = buildOptionContent(flavor, false);
+    opt.className = 'pizza-config-option' + (hasConflict ? ' has-conflict' : '');
     opt.dataset.kind = 'flavor';
     opt.dataset.idx = idx;
-    const flavorName = currentLang === 'it' ? flavor.name_it : (flavor.name_en || flavor.name_it);
-    const allergensTxt = flavor.allergens 
-      ? `<span class="allergens">(${flavor.allergens})</span>` 
-      : '';
     opt.innerHTML = `
       <div class="radio-dot"></div>
-      <div class="name">${flavorName}</div>
-      ${allergensTxt}
+      <div style="flex: 1; min-width: 0;">
+        <div class="name">${itemName}</div>
+        ${allergenHtml}
+      </div>
     `;
     opt.onclick = () => selectPizzaOption('flavor', idx);
     flavorsList.appendChild(opt);
@@ -3471,6 +3504,18 @@ function refreshDishQtyUI(catKey, idx) {
   renderVariantsBreakdown(catKey, idx);
 }
 
+// Converte una chiave variante (numero singolo "1" o composita "all_1_7") in label leggibile
+function variantKeyToLabel(key, lang) {
+  lang = lang || currentLang;
+  if (key.startsWith('all_')) {
+    const nums = key.substring(4).split('_').filter(Boolean);
+    const labels = nums.map(num => allergenNumToLabel(num)).map(s => s.toUpperCase());
+    if (lang === 'it') return labels.join(' E ');
+    return labels.join(' AND ');
+  }
+  return allergenNumToLabel(key).toUpperCase();
+}
+
 function renderVariantsBreakdown(catKey, idx) {
   const v = getDishVariants(catKey, idx);
   const breakdownId = `variants-${catKey}-${idx}`;
@@ -3484,7 +3529,6 @@ function renderVariantsBreakdown(catKey, idx) {
   }
   
   if (!breakdownEl) {
-    // Crea il breakdown sotto il dish-info del piatto
     const qtyEl = document.getElementById(`qty-${catKey}-${idx}`);
     if (!qtyEl) return;
     const dishEl = qtyEl.closest('.dish');
@@ -3498,9 +3542,9 @@ function renderVariantsBreakdown(catKey, idx) {
   }
   
   const rows = allergenKeys.map(a => {
-    const allergenName = allergenNumToLabel(a).toUpperCase();
+    const variantLabel = variantKeyToLabel(a);
     return `<div class="variant-row">
-      <span><strong>${v.byAllergen[a]}×</strong> <span class="no-allergen">SENZA ${allergenName}</span></span>
+      <span><strong>${v.byAllergen[a]}×</strong> <span class="no-allergen">SENZA ${variantLabel}</span></span>
       <button class="remove-variant" onclick="removeVariantOne('${catKey}', ${idx}, '${a}')" title="Rimuovi 1">×</button>
     </div>`;
   }).join('');
@@ -3573,6 +3617,28 @@ function openVariantModal(catKey, idx, dish, conflictAllergens) {
     choice.onclick = () => selectVariantChoice(allergenNum);
     choicesEl.appendChild(choice);
   });
+  
+  // Se ci sono 2+ allergeni in conflitto, aggiungi opzione "SENZA TUTTI"
+  if (conflictAllergens.length >= 2) {
+    const allLabels = conflictAllergens.map(allergenNumToLabel).map(s => s.toUpperCase()).join(' E ');
+    const allLabelsEn = conflictAllergens.map(n => allergenNumToLabel(n)).map(s => s.toUpperCase()).join(' AND ');
+    // Chiave composita: "all_<num1>_<num2>_..." in ordine crescente
+    const compositeKey = 'all_' + [...conflictAllergens].sort().join('_');
+    const choice = document.createElement('div');
+    choice.className = 'variant-choice variant-choice-all';
+    choice.dataset.choice = compositeKey;
+    choice.innerHTML = `
+      <div class="radio-dot"></div>
+      <div class="label">
+        <strong>${currentLang === 'it' ? 'Variante SENZA' : 'Variant WITHOUT'} ${currentLang === 'it' ? allLabels : allLabelsEn}</strong>
+        <div style="font-size: 11px; color: var(--ink-muted); margin-top: 2px;">
+          ${currentLang === 'it' ? 'Verrà preparato senza tutti questi allergeni' : 'Will be prepared without all these allergens'}
+        </div>
+      </div>
+    `;
+    choice.onclick = () => selectVariantChoice(compositeKey);
+    choicesEl.appendChild(choice);
+  }
   
   document.getElementById('variant-modal').classList.remove('hidden');
 }
@@ -3663,17 +3729,17 @@ function submitOrder() {
             });
           }
           // Una riga per ogni variante allergen-free
-          Object.keys(variants.byAllergen).forEach(allergenNum => {
-            const q = variants.byAllergen[allergenNum];
+          Object.keys(variants.byAllergen).forEach(allergenKey => {
+            const q = variants.byAllergen[allergenKey];
             if (q > 0) {
-              const allergenName = allergenNumToLabel(allergenNum);
+              const variantLabel = variantKeyToLabel(allergenKey, 'it'); // es. "GLUTINE E LATTE" o "GLUTINE"
               items.push({
                 category: sub.key,
                 dishName: dish.name_it,
                 dishNameEn: dish.name_en || '',
                 qty: q,
-                excludeAllergen: allergenNum,
-                excludeAllergenName: allergenName.toUpperCase()
+                excludeAllergen: allergenKey,
+                excludeAllergenName: variantLabel
               });
             }
           });
@@ -3702,17 +3768,17 @@ function submitOrder() {
         });
       }
       // Varianti allergen-free
-      Object.keys(variants.byAllergen).forEach(allergenNum => {
-        const q = variants.byAllergen[allergenNum];
+      Object.keys(variants.byAllergen).forEach(allergenKey => {
+        const q = variants.byAllergen[allergenKey];
         if (q > 0) {
-          const allergenName = allergenNumToLabel(allergenNum);
+          const variantLabel = variantKeyToLabel(allergenKey, 'it');
           items.push({
             category: cat.key,
             dishName: dish.name_it,
             dishNameEn: dish.name_en || '',
             qty: q,
-            excludeAllergen: allergenNum,
-            excludeAllergenName: allergenName.toUpperCase()
+            excludeAllergen: allergenKey,
+            excludeAllergenName: variantLabel
           });
         }
       });
@@ -4842,15 +4908,41 @@ function renderOrders() {
       card.className = 'order-card';
       const time = new Date(o.submittedAt).toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'});
       let itemsHtml = '';
+      // Mappa categorie + ordine custom per la card famiglia (ordine di servizio in cucina)
       const allCatsMap = {};
       CATEGORIES.forEach(cat => {
         if (cat.type === 'grouped') {
-          cat.subsections.forEach(sub => { allCatsMap[sub.key] = sub.label_it; });
+          cat.subsections.forEach(sub => {
+            allCatsMap[sub.key] = sub.label_it;
+            if (sub.supportsPizza) {
+              allCatsMap[`pizza_${sub.pizzaScope}`] = `🍕 Pizze ${sub.pizzaScope === 'kid' ? 'Bambini' : ''}`.trim();
+            }
+          });
         } else {
           allCatsMap[cat.key] = cat.label_it;
+          if (cat.supportsPizza) {
+            allCatsMap[`pizza_${cat.pizzaScope}`] = `🍕 Pizze ${cat.pizzaScope === 'adult' ? 'Adulti' : 'Baby'}`;
+          }
         }
       });
-      Object.keys(allCatsMap).forEach(catKey => {
+      // Categorie legacy
+      allCatsMap['pizze'] = '🍕 Pizze (legacy)';
+      allCatsMap['pizze_baby'] = '🍕 Pizze Baby (legacy)';
+      
+      // Ordine di visualizzazione preferito (ordine di servizio):
+      // primi -> bambini_primi -> pizza_adult -> pizza_kid -> secondi -> contorni -> bambini_secondi
+      const orderForDisplay = [
+        'primi', 'bambini_primi', 'pizza_adult', 'pizza_kid',
+        'secondi', 'contorni', 'bambini_secondi',
+        'pizze', 'pizze_baby'
+      ];
+      // Aggiungo categorie non previste in coda (safety)
+      Object.keys(allCatsMap).forEach(c => {
+        if (!orderForDisplay.includes(c)) orderForDisplay.push(c);
+      });
+      
+      orderForDisplay.forEach(catKey => {
+        if (!allCatsMap[catKey]) return;
         const catItems = o.items.filter(i => i.category === catKey);
         if (catItems.length === 0) return;
         itemsHtml += `<div style="font-size: 10px; font-weight: 600; color: var(--ink-muted); letter-spacing: 0.05em; margin-top: 8px; margin-bottom: 3px; text-transform: uppercase;">${allCatsMap[catKey]}</div>`;
@@ -5305,13 +5397,42 @@ function buildPrintOverlay(mode) {
           intolHtml += `</div>`;
         }
         
-        // Items
-        let itemsHtml = '';
+        // Items con ORDINE CATEGORIE specifico per servizio in cucina:
+        // 1. Prima Portata, 2. Prima Portata Baby, 3. Pizza, 4. Pizza Baby,
+        // 5. Seconda Portata, 6. Contorni, 7. Seconda Portata Baby
+        const familyCatOrder = [
+          'primi',          // Prima Portata
+          'bambini_primi',  // Prima Portata Baby
+          'pizza_adult',    // Pizza
+          'pizza_kid',      // Pizza Baby
+          'secondi',        // Seconda Portata
+          'contorni',       // Contorni
+          'bambini_secondi',// Seconda Portata Baby
+          // Categorie legacy in coda
+          'pizze', 'pizze_baby'
+        ];
+        
+        // Raggruppo gli items per categoria
+        const itemsByCat = {};
         (o.items || []).forEach(i => {
-          const variantTag = i.excludeAllergenName ? `<span class="print-variant">SENZA ${i.excludeAllergenName}</span>` : '';
-          const sideText = i.pizzaSide ? ` + ${escapeHtml(i.pizzaSide)}` : '';
-          const pizzaIcon = (i.category === 'pizza_adult' || i.category === 'pizza_kid') ? '🍕 ' : '';
-          itemsHtml += `<tr><td>${pizzaIcon}${escapeHtml(i.dishName)} ${variantTag}<span class="print-side-inline">${sideText}</span></td><td class="print-qty">×${i.qty}</td></tr>`;
+          if (!itemsByCat[i.category]) itemsByCat[i.category] = [];
+          itemsByCat[i.category].push(i);
+        });
+        // Aggiungo eventuali categorie non previste in coda (safety net)
+        Object.keys(itemsByCat).forEach(cat => {
+          if (!familyCatOrder.includes(cat)) familyCatOrder.push(cat);
+        });
+        
+        let itemsHtml = '';
+        familyCatOrder.forEach(catKey => {
+          const catItems = itemsByCat[catKey];
+          if (!catItems || catItems.length === 0) return;
+          catItems.forEach(i => {
+            const variantTag = i.excludeAllergenName ? `<span class="print-variant">SENZA ${i.excludeAllergenName}</span>` : '';
+            const sideText = i.pizzaSide ? ` + ${escapeHtml(i.pizzaSide)}` : '';
+            const pizzaIcon = (i.category === 'pizza_adult' || i.category === 'pizza_kid') ? '🍕 ' : '';
+            itemsHtml += `<tr><td>${pizzaIcon}${escapeHtml(i.dishName)} ${variantTag}<span class="print-side-inline">${sideText}</span></td><td class="print-qty">×${i.qty}</td></tr>`;
+          });
         });
         
         html += `
