@@ -361,6 +361,24 @@ body {
 }
 .allergen-legend strong { color: var(--ink); font-size: 11px; letter-spacing: 0.05em; }
 
+/* Disclaimer privacy a fondo pagina */
+.privacy-disclaimer {
+  margin-top: 28px;
+  padding: 14px 16px;
+  background: rgba(176,168,160,0.06);
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  font-size: 10px;
+  color: var(--ink-muted);
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+}
+.privacy-disclaimer strong {
+  color: var(--ink);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+}
+
 /* --- SUCCESS VIEW --- */
 .success-view {
   text-align: center;
@@ -1032,6 +1050,67 @@ body {
   margin: 0 0 8px 0;
   font-weight: 600;
 }
+
+/* Sezioni collassabili (accordion) */
+.pizza-collapsible {
+  margin-bottom: 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--paper);
+  transition: border-color 0.15s;
+}
+.pizza-collapsible.open {
+  border-color: var(--accent-warm);
+}
+.pizza-collapsible-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+  transition: background 0.15s;
+}
+.pizza-collapsible-header:hover {
+  background: rgba(140,110,74,0.04);
+}
+.pizza-collapsible.open .pizza-collapsible-header {
+  background: rgba(140,110,74,0.06);
+  border-bottom: 1px solid var(--line);
+}
+.pizza-collapsible-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.pizza-collapsible-chevron {
+  font-size: 14px;
+  color: var(--accent-warm);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+.pizza-collapsible.open .pizza-collapsible-chevron {
+  transform: rotate(180deg);
+}
+.pizza-collapsible-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease;
+}
+.pizza-collapsible.open .pizza-collapsible-body {
+  max-height: 600px;
+  padding: 12px 14px;
+}
+
 .pizza-config-list {
   display: flex;
   flex-direction: column;
@@ -1720,6 +1799,29 @@ body.print-mode #print-overlay { margin-top: 60px; }
     font-style: italic; 
     font-size: 12pt; 
   }
+  /* Alternativa piatto (per varianti senza singolo allergene) - importante per la cucina */
+  .print-alt {
+    font-size: 12pt;
+    color: #8C6E4A;
+    font-weight: 700;
+    margin-top: 4px;
+    padding: 2px 6px;
+    background: rgba(140, 110, 74, 0.1);
+    border-left: 3px solid #8C6E4A;
+    border-radius: 3px;
+    display: inline-block;
+  }
+  .print-alt-family {
+    font-size: 11pt;
+    color: #8C6E4A;
+    font-weight: 700;
+    margin-top: 3px;
+    padding: 2px 6px;
+    background: rgba(140, 110, 74, 0.1);
+    border-left: 3px solid #8C6E4A;
+    border-radius: 3px;
+    display: inline-block;
+  }
   
   /* Card famiglia */
   .print-family-card {
@@ -1771,6 +1873,23 @@ body.print-mode #print-overlay { margin-top: 60px; }
     width: 50px;
     color: #1a1a1a;
     font-size: 14pt;
+  }
+  /* Sezione PRIMA USCITA / SECONDA USCITA dentro la card famiglia */
+  .print-table-family .print-section-row {
+    background: transparent;
+  }
+  .print-table-family .print-section-cell {
+    padding: 10px 0 4px 0 !important;
+    font-size: 11pt;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: #286098;
+    text-transform: uppercase;
+    border-bottom: 1px solid #c8d6e2;
+    margin-bottom: 4px;
+  }
+  .print-table-family tr:first-child .print-section-cell {
+    padding-top: 4px !important;
   }
   
   .print-pagebreak { page-break-before: always; }
@@ -1831,17 +1950,17 @@ body.print-mode #print-overlay { margin-top: 60px; }
 
     <!-- Form famiglia -->
     <div class="field">
-      <label data-it="Cognome di prenotazione" data-en="Booking surname">Cognome di prenotazione</label>
-      <input type="text" id="guest-family" placeholder="Rossi">
+      <label data-it="Cognome Famiglia" data-en="Family surname">Cognome Famiglia</label>
+      <input type="text" id="guest-family" placeholder="Famiglia">
     </div>
     <div class="field-row">
       <div class="field">
         <label data-it="N° adulti" data-en="Adults">N° adulti</label>
-        <input type="number" id="guest-adults" min="0" max="20" placeholder="2" oninput="onPeopleCountChange()">
+        <input type="number" id="guest-adults" min="0" max="20" placeholder="0" oninput="onPeopleCountChange()">
       </div>
       <div class="field">
         <label data-it="N° bambini e neonati" data-en="Children & infants">N° bambini e neonati</label>
-        <input type="number" id="guest-children" min="0" max="20" placeholder="2" oninput="onPeopleCountChange()">
+        <input type="number" id="guest-children" min="0" max="20" placeholder="0" oninput="onPeopleCountChange()">
       </div>
     </div>
 
@@ -1883,6 +2002,15 @@ body.print-mode #print-overlay { margin-top: 60px; }
       <button class="btn btn-primary" onclick="submitOrder()" id="submit-btn">
         <span data-it="Invia ordinazione" data-en="Submit order">Invia ordinazione</span>
       </button>
+    </div>
+
+    <!-- Disclaimer privacy / nota informativa -->
+    <div class="privacy-disclaimer">
+      <span data-html="true" 
+            data-it="<strong>Trattamento dati.</strong> Le informazioni raccolte (cognome di prenotazione, scelta dei piatti ed eventuali intolleranze segnalate) sono utilizzate esclusivamente dal personale del ristorante Borgo Conero per la preparazione del servizio di mezza pensione e non vengono condivise con terzi. I dati relativi a intolleranze alimentari sono trattati come informazioni sanitarie ai sensi del GDPR (UE 2016/679) e conservati per il tempo strettamente necessario al servizio."
+            data-en="<strong>Data processing.</strong> The information collected (booking surname, dish selection and any reported intolerances) is used exclusively by the Borgo Conero restaurant staff to prepare the half-board service and is not shared with third parties. Food intolerance data is treated as health information under the GDPR (EU 2016/679) and kept only for the time strictly necessary for the service.">
+        <strong>Trattamento dati.</strong> Le informazioni raccolte (cognome di prenotazione, scelta dei piatti ed eventuali intolleranze segnalate) sono utilizzate esclusivamente dal personale del ristorante Borgo Conero per la preparazione del servizio di mezza pensione e non vengono condivise con terzi. I dati relativi a intolleranze alimentari sono trattati come informazioni sanitarie ai sensi del GDPR (UE 2016/679) e conservati per il tempo strettamente necessario al servizio.
+      </span>
     </div>
 
   </div>
@@ -2056,7 +2184,7 @@ body.print-mode #print-overlay { margin-top: 60px; }
       <div class="allergen-grid" id="person-allergen-grid"></div>
       <div class="panel-title" style="margin-top: 16px;" data-it="Note per la cucina (opzionale)" data-en="Notes for the kitchen (optional)">Note per la cucina (opzionale)</div>
       <div class="notes-field">
-        <textarea id="person-notes" rows="2" placeholder="Es. dieta vegana, allergia ai funghi…"></textarea>
+        <textarea id="person-notes" rows="2" placeholder="Es. dieta vegetariana, allergia ai funghi…"></textarea>
       </div>
     </div>
     <div class="guest-modal-foot">
@@ -2927,16 +3055,17 @@ function renderGuestMenu() {
   document.getElementById('submit-wrap')?.classList.remove('hidden');
   // guests-list-wrap e filter-toggle-row sono gestiti da altre funzioni in base allo stato
 
-  // Testo istruzioni dinamico: menziona pizza solo se pizze o pizze_baby sono attive
-  const pizzaEnabledAdults = !!menu._pizze_enabled;
-  const pizzaEnabledKids = !!menu._pizze_baby_enabled && children > 0;
+  // Testo istruzioni dinamico: menziona MENU PIZZA solo se la pizza è attiva
+  // (controlla i flag nuovi _pizza_adult_enabled / _pizza_kid_enabled)
+  const pizzaEnabledAdults = !!menu._pizza_adult_enabled;
+  const pizzaEnabledKids = !!menu._pizza_kid_enabled && children > 0;
   const hasPizza = pizzaEnabledAdults || pizzaEnabledKids;
   const infoText = document.getElementById('guest-info-text');
   if (infoText) {
     if (hasPizza) {
       infoText.textContent = currentLang === 'it' 
-        ? ' ogni persona può scegliere 2 piatti — un primo e un secondo o una pizza.'
-        : ' each person can choose 2 dishes — a first course and a second course or a pizza.';
+        ? ' ogni persona può scegliere o il MENU PIZZA (pizza + stuzzicheria) oppure un primo e un secondo dal menù di mezza pensione.'
+        : ' each person can choose either the PIZZA MENU (pizza + side) or a first and a second course from the half board menu.';
     } else {
       infoText.textContent = currentLang === 'it'
         ? ' ogni persona può scegliere 2 piatti — un primo e un secondo.'
@@ -3245,10 +3374,13 @@ function buildPizzaCard(scope) {
       const side = (order.sideIdx !== null && order.sideIdx !== undefined) 
         ? DB.pizzaConfig.sides[order.sideIdx] 
         : null;
-      if (!flavor) return; // safety
+      if (!flavor) return;
       
       const flavorName = currentLang === 'it' ? flavor.name_it : (flavor.name_en || flavor.name_it);
       const sideName = side ? (currentLang === 'it' ? side.name_it : (side.name_en || side.name_it)) : null;
+      const lactoseHtml = order.lactoseFree 
+        ? `<div class="side" style="color: var(--accent-warm); font-weight: 600;">${currentLang === 'it' ? 'mozzarella senza lattosio' : 'lactose-free mozzarella'}</div>` 
+        : '';
       
       const row = document.createElement('div');
       row.className = 'pizza-order-row';
@@ -3256,6 +3388,7 @@ function buildPizzaCard(scope) {
         <div class="desc">
           ${flavorName}
           ${sideName ? `<div class="side">+ ${sideName}</div>` : ''}
+          ${lactoseHtml}
         </div>
         <button class="remove-pizza" onclick="removePizzaOrder('${scope}', ${i})" title="Rimuovi">×</button>
       `;
@@ -3272,103 +3405,268 @@ let pendingPizzaConfig = null; // { scope, flavorIdx, sideIdx }
 
 function openPizzaModal(scope) {
   const flavorList = scope === 'adult' ? DB.pizzaConfig.adultFlavors : DB.pizzaConfig.kidFlavors;
-  const sideList = DB.pizzaConfig.sides || [];
+  let sideList = DB.pizzaConfig.sides || [];
   
   if (!flavorList || flavorList.length === 0) {
     showToast(currentLang === 'it' ? 'Nessun gusto pizza configurato' : 'No pizza flavor configured');
     return;
   }
   
-  pendingPizzaConfig = { scope, flavorIdx: null, sideIdx: null };
+  // 6) Per i bambini, mostriamo SOLO contorni con "patatin" nel nome
+  if (scope === 'kid') {
+    const filtered = sideList.filter(s => 
+      (s.name_it || '').toLowerCase().includes('patatin') ||
+      (s.name_en || '').toLowerCase().includes('chip') ||
+      (s.name_en || '').toLowerCase().includes('fries')
+    );
+    // Se non ne troviamo, fallback alla lista completa per non bloccare
+    if (filtered.length > 0) sideList = filtered;
+  }
+  
+  pendingPizzaConfig = { 
+    scope, flavorIdx: null, sideIdx: null,
+    lactoseFree: false  // 8) flag mozzarella senza lattosio
+  };
   
   const body = document.getElementById('pizza-config-body');
   body.innerHTML = '';
   
+  // 10) Dicitura introduttiva
+  const intro = document.createElement('div');
+  intro.style.cssText = `
+    background: rgba(40,96,152,0.08);
+    border-left: 3px solid var(--sea);
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink);
+  `;
+  intro.innerHTML = currentLang === 'it'
+    ? `Il <strong>MENU PIZZA</strong> rappresenta un'alternativa alle proposte di mezza pensione e <strong>non è abbinabile</strong> ad esse.`
+    : `The <strong>PIZZA MENU</strong> is an alternative to the half-board offer and <strong>cannot be combined</strong> with it.`;
+  body.appendChild(intro);
+  
   // Helper per evidenziare allergeni in conflitto
-  const buildOptionContent = (item, isSide = false) => {
+  const buildOptionContent = (item) => {
     const itemName = currentLang === 'it' ? item.name_it : (item.name_en || item.name_it);
     const conflicts = getConflictAllergens({ allergens: item.allergens || '' });
-    
     let allergenHtml = '';
     if (conflicts.length > 0) {
-      // Mostra "Contiene: X, Y" in rosso
       const labels = conflicts.map(num => allergenNumToLabel(num)).join(', ');
       allergenHtml = `<div class="pizza-option-conflict">${currentLang === 'it' ? 'Contiene' : 'Contains'}: ${labels}</div>`;
     } else if (item.allergens) {
-      // Mostra solo i numeri degli allergeni in piccolo (info neutra)
       allergenHtml = `<span class="allergens">(${item.allergens})</span>`;
     }
-    
-    return { itemName, allergenHtml, hasConflict: conflicts.length > 0 };
+    return { itemName, allergenHtml, hasConflict: conflicts.length > 0, conflicts };
   };
   
-  // CONTORNI (sopra come da specifica)
-  if (sideList.length > 0) {
-    const sidesSection = document.createElement('div');
-    sidesSection.className = 'pizza-config-section';
-    sidesSection.innerHTML = `<h4>${currentLang === 'it' ? "Contorno d'accompagnamento (opzionale)" : 'Side dish (optional)'}</h4>`;
-    const sidesList = document.createElement('div');
-    sidesList.className = 'pizza-config-list';
+  // Helper per costruire una sezione collassabile (accordion)
+  // Tutte le sezioni iniziano CHIUSE; click sull'header per espandere/contrarre
+  const buildCollapsibleSection = (sectionId, title, contentBuilder) => {
+    const section = document.createElement('div');
+    section.className = 'pizza-config-section pizza-collapsible';
+    section.dataset.sectionId = sectionId;
     
-    // Opzione "nessuno" sempre selezionata di default
-    const noneOpt = document.createElement('div');
-    noneOpt.className = 'pizza-config-option selected';
-    noneOpt.dataset.kind = 'side';
-    noneOpt.dataset.idx = 'null';
-    noneOpt.innerHTML = `
-      <div class="radio-dot"></div>
-      <div class="name" style="font-style: italic; color: var(--ink-muted);">${currentLang === 'it' ? 'Nessun contorno' : 'No side'}</div>
+    const header = document.createElement('button');
+    header.type = 'button';
+    header.className = 'pizza-collapsible-header';
+    header.innerHTML = `
+      <span class="pizza-collapsible-title">${title}</span>
+      <span class="pizza-collapsible-chevron">▾</span>
     `;
-    noneOpt.onclick = () => selectPizzaOption('side', null);
-    sidesList.appendChild(noneOpt);
+    header.onclick = () => togglePizzaSection(sectionId);
+    section.appendChild(header);
     
-    sideList.forEach((side, idx) => {
-      const opt = document.createElement('div');
-      const { itemName, allergenHtml, hasConflict } = buildOptionContent(side, true);
-      opt.className = 'pizza-config-option' + (hasConflict ? ' has-conflict' : '');
-      opt.dataset.kind = 'side';
-      opt.dataset.idx = idx;
-      opt.innerHTML = `
-        <div class="radio-dot"></div>
-        <div style="flex: 1; min-width: 0;">
-          <div class="name">${itemName}</div>
-          ${allergenHtml}
-        </div>
-      `;
-      opt.onclick = () => selectPizzaOption('side', idx);
-      sidesList.appendChild(opt);
-    });
-    sidesSection.appendChild(sidesList);
-    body.appendChild(sidesSection);
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'pizza-collapsible-body';
+    contentBuilder(bodyEl);
+    section.appendChild(bodyEl);
+    
+    return section;
+  };
+  
+  // GUSTI: divisi in BIANCHE e ROSSE
+  const whiteFlavors = [];
+  const redFlavors = [];
+  flavorList.forEach((flavor, idx) => {
+    if (flavor.type === 'white') whiteFlavors.push({ flavor, idx });
+    else redFlavors.push({ flavor, idx });
+  });
+  
+  // === ORDINE: 1) Contorno  2) Pizze Bianche  3) Pizze Rosse ===
+  
+  // 1. CONTORNO (collassabile)
+  if (sideList.length > 0) {
+    body.appendChild(buildCollapsibleSection(
+      'side',
+      currentLang === 'it' ? "Contorno d'accompagnamento (opzionale)" : 'Side dish (optional)',
+      (bodyEl) => {
+        const ul = document.createElement('div');
+        ul.className = 'pizza-config-list';
+        
+        const noneOpt = document.createElement('div');
+        noneOpt.className = 'pizza-config-option selected';
+        noneOpt.dataset.kind = 'side';
+        noneOpt.dataset.idx = 'null';
+        noneOpt.innerHTML = `
+          <div class="radio-dot"></div>
+          <div class="name" style="font-style: italic; color: var(--ink-muted);">${currentLang === 'it' ? 'Nessun contorno' : 'No side'}</div>
+        `;
+        noneOpt.onclick = () => selectPizzaOption('side', null);
+        ul.appendChild(noneOpt);
+        
+        sideList.forEach((side) => {
+          const originalIdx = DB.pizzaConfig.sides.indexOf(side);
+          const opt = document.createElement('div');
+          const { itemName, allergenHtml, hasConflict } = buildOptionContent(side);
+          opt.className = 'pizza-config-option' + (hasConflict ? ' has-conflict' : '');
+          opt.dataset.kind = 'side';
+          opt.dataset.idx = originalIdx;
+          opt.innerHTML = `
+            <div class="radio-dot"></div>
+            <div style="flex: 1; min-width: 0;">
+              <div class="name">${itemName}</div>
+              ${allergenHtml}
+            </div>
+          `;
+          opt.onclick = () => selectPizzaOption('side', originalIdx);
+          ul.appendChild(opt);
+        });
+        bodyEl.appendChild(ul);
+      }
+    ));
   }
   
-  // GUSTI (obbligatorio)
-  const flavorsSection = document.createElement('div');
-  flavorsSection.className = 'pizza-config-section';
-  flavorsSection.innerHTML = `<h4>${currentLang === 'it' ? 'Gusto della pizza' : 'Pizza flavor'}</h4>`;
-  const flavorsList = document.createElement('div');
-  flavorsList.className = 'pizza-config-list';
+  // 2. PIZZE BIANCHE (collassabile)
+  if (whiteFlavors.length > 0) {
+    body.appendChild(buildCollapsibleSection(
+      'white',
+      currentLang === 'it' ? '🍕 Pizze Bianche' : '🍕 White Pizzas',
+      (bodyEl) => {
+        const ul = document.createElement('div');
+        ul.className = 'pizza-config-list';
+        whiteFlavors.forEach(({ flavor, idx }) => {
+          const opt = document.createElement('div');
+          const { itemName, allergenHtml, hasConflict } = buildOptionContent(flavor);
+          opt.className = 'pizza-config-option' + (hasConflict ? ' has-conflict' : '');
+          opt.dataset.kind = 'flavor';
+          opt.dataset.idx = idx;
+          opt.innerHTML = `
+            <div class="radio-dot"></div>
+            <div style="flex: 1; min-width: 0;">
+              <div class="name">${itemName}</div>
+              ${allergenHtml}
+            </div>
+          `;
+          opt.onclick = () => selectPizzaOption('flavor', idx);
+          ul.appendChild(opt);
+        });
+        bodyEl.appendChild(ul);
+      }
+    ));
+  }
   
-  flavorList.forEach((flavor, idx) => {
-    const opt = document.createElement('div');
-    const { itemName, allergenHtml, hasConflict } = buildOptionContent(flavor, false);
-    opt.className = 'pizza-config-option' + (hasConflict ? ' has-conflict' : '');
-    opt.dataset.kind = 'flavor';
-    opt.dataset.idx = idx;
-    opt.innerHTML = `
-      <div class="radio-dot"></div>
-      <div style="flex: 1; min-width: 0;">
-        <div class="name">${itemName}</div>
-        ${allergenHtml}
-      </div>
-    `;
-    opt.onclick = () => selectPizzaOption('flavor', idx);
-    flavorsList.appendChild(opt);
-  });
-  flavorsSection.appendChild(flavorsList);
-  body.appendChild(flavorsSection);
+  // 3. PIZZE ROSSE (collassabile)
+  if (redFlavors.length > 0) {
+    body.appendChild(buildCollapsibleSection(
+      'red',
+      currentLang === 'it' ? '🍕 Pizze Rosse' : '🍕 Red Pizzas',
+      (bodyEl) => {
+        const ul = document.createElement('div');
+        ul.className = 'pizza-config-list';
+        redFlavors.forEach(({ flavor, idx }) => {
+          const opt = document.createElement('div');
+          const { itemName, allergenHtml, hasConflict } = buildOptionContent(flavor);
+          opt.className = 'pizza-config-option' + (hasConflict ? ' has-conflict' : '');
+          opt.dataset.kind = 'flavor';
+          opt.dataset.idx = idx;
+          opt.innerHTML = `
+            <div class="radio-dot"></div>
+            <div style="flex: 1; min-width: 0;">
+              <div class="name">${itemName}</div>
+              ${allergenHtml}
+            </div>
+          `;
+          opt.onclick = () => selectPizzaOption('flavor', idx);
+          ul.appendChild(opt);
+        });
+        bodyEl.appendChild(ul);
+      }
+    ));
+  }
+  
+  // Container per la scelta "mozzarella senza lattosio" (compare solo se rilevante)
+  const lactoseSection = document.createElement('div');
+  lactoseSection.id = 'pizza-lactose-section';
+  lactoseSection.style.display = 'none';
+  body.appendChild(lactoseSection);
   
   document.getElementById('pizza-config-modal').classList.remove('hidden');
+}
+
+// Toggle accordion: apre la sezione cliccata e chiude tutte le altre
+function togglePizzaSection(sectionId) {
+  const allSections = document.querySelectorAll('#pizza-config-body .pizza-collapsible');
+  const target = document.querySelector(`#pizza-config-body .pizza-collapsible[data-section-id="${sectionId}"]`);
+  if (!target) return;
+  const wasOpen = target.classList.contains('open');
+  // Chiudo tutte
+  allSections.forEach(s => s.classList.remove('open'));
+  // Se non era aperta, la apro
+  if (!wasOpen) target.classList.add('open');
+}
+
+// 8) Aggiorna la visibilità del toggle "mozzarella senza lattosio" in base al gusto selezionato
+function updateLactoseFreeOption() {
+  const section = document.getElementById('pizza-lactose-section');
+  if (!section || !pendingPizzaConfig) return;
+  const scope = pendingPizzaConfig.scope;
+  const flavorIdx = pendingPizzaConfig.flavorIdx;
+  if (flavorIdx === null || flavorIdx === undefined) {
+    section.style.display = 'none';
+    return;
+  }
+  const flavorList = scope === 'adult' ? DB.pizzaConfig.adultFlavors : DB.pizzaConfig.kidFlavors;
+  const flavor = flavorList[flavorIdx];
+  if (!flavor) {
+    section.style.display = 'none';
+    return;
+  }
+  // Verifico: il gusto contiene latte (allergene "7") E l'ospite ha intolleranza al latte?
+  const flavorAllergens = (flavor.allergens || '').split(',').map(s => s.trim());
+  const hasLactose = flavorAllergens.includes('7');
+  const guestIntolerantToLactose = getAllSelectedAllergens().has('7');
+  
+  if (!hasLactose || !guestIntolerantToLactose) {
+    section.style.display = 'none';
+    pendingPizzaConfig.lactoseFree = false;
+    return;
+  }
+  
+  // Mostra la sezione
+  section.style.display = 'block';
+  section.innerHTML = `
+    <div style="margin-top: 12px; padding: 12px 14px; background: rgba(140,110,74,0.08); border: 1.5px solid var(--accent-warm); border-radius: 10px;">
+      <div style="font-size: 12px; font-weight: 600; color: var(--accent-warm); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px;">
+        ${currentLang === 'it' ? '⚠ Intolleranza al lattosio segnalata' : '⚠ Lactose intolerance reported'}
+      </div>
+      <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 14px; color: var(--ink); user-select: none;">
+        <input type="checkbox" id="pizza-lactose-free-toggle" ${pendingPizzaConfig.lactoseFree ? 'checked' : ''} 
+               onchange="toggleLactoseFreeMozzarella(this.checked)"
+               style="width: 18px; height: 18px; accent-color: var(--accent-warm); cursor: pointer; flex-shrink: 0;">
+        <span>${currentLang === 'it' 
+          ? 'Preparare con <strong>mozzarella senza lattosio</strong>'
+          : 'Prepare with <strong>lactose-free mozzarella</strong>'}</span>
+      </label>
+    </div>
+  `;
+}
+
+function toggleLactoseFreeMozzarella(checked) {
+  if (!pendingPizzaConfig) return;
+  pendingPizzaConfig.lactoseFree = !!checked;
 }
 
 function selectPizzaOption(kind, idx) {
@@ -3378,8 +3676,12 @@ function selectPizzaOption(kind, idx) {
     el.classList.toggle('selected', elIdx === idx);
   });
   if (!pendingPizzaConfig) return;
-  if (kind === 'flavor') pendingPizzaConfig.flavorIdx = idx;
-  if (kind === 'side') pendingPizzaConfig.sideIdx = idx; // può essere null
+  if (kind === 'flavor') {
+    pendingPizzaConfig.flavorIdx = idx;
+    pendingPizzaConfig.lactoseFree = false;  // reset al cambio gusto
+    updateLactoseFreeOption();
+  }
+  if (kind === 'side') pendingPizzaConfig.sideIdx = idx;
 }
 
 function confirmPizzaConfig() {
@@ -3390,11 +3692,11 @@ function confirmPizzaConfig() {
   }
   pizzaOrders[pendingPizzaConfig.scope].push({
     flavorIdx: pendingPizzaConfig.flavorIdx,
-    sideIdx: pendingPizzaConfig.sideIdx
+    sideIdx: pendingPizzaConfig.sideIdx,
+    lactoseFree: !!pendingPizzaConfig.lactoseFree
   });
   document.getElementById('pizza-config-modal').classList.add('hidden');
   pendingPizzaConfig = null;
-  // Re-render menù per aggiornare la lista pizze sotto la card
   renderGuestMenu();
 }
 
@@ -3605,12 +3907,28 @@ function openVariantModal(catKey, idx, dish, conflictAllergens) {
     const choice = document.createElement('div');
     choice.className = 'variant-choice';
     choice.dataset.choice = allergenNum;
+    
+    // Sottotitolo: se c'è un piatto alternativo configurato dall'admin, lo mostro
+    const dishAlternative = dish.alternatives && dish.alternatives[allergenNum] 
+      ? dish.alternatives[allergenNum].trim() 
+      : '';
+    let subtitleText;
+    if (dishAlternative) {
+      subtitleText = currentLang === 'it' 
+        ? `In alternativa: <strong style="color: var(--accent-warm);">${escapeHtml(dishAlternative)}</strong>`
+        : `Alternative: <strong style="color: var(--accent-warm);">${escapeHtml(dishAlternative)}</strong>`;
+    } else {
+      subtitleText = currentLang === 'it' 
+        ? 'Verrà preparato senza questo allergene' 
+        : 'Will be prepared without this allergen';
+    }
+    
     choice.innerHTML = `
       <div class="radio-dot"></div>
       <div class="label">
         <strong>${currentLang === 'it' ? 'Variante SENZA' : 'Variant WITHOUT'} ${allergenName.toUpperCase()}</strong>
         <div style="font-size: 11px; color: var(--ink-muted); margin-top: 2px;">
-          ${currentLang === 'it' ? 'Verrà preparato senza questo allergene' : 'Will be prepared without this allergen'}
+          ${subtitleText}
         </div>
       </div>
     `;
@@ -3632,7 +3950,9 @@ function openVariantModal(catKey, idx, dish, conflictAllergens) {
       <div class="label">
         <strong>${currentLang === 'it' ? 'Variante SENZA' : 'Variant WITHOUT'} ${currentLang === 'it' ? allLabels : allLabelsEn}</strong>
         <div style="font-size: 11px; color: var(--ink-muted); margin-top: 2px;">
-          ${currentLang === 'it' ? 'Verrà preparato senza tutti questi allergeni' : 'Will be prepared without all these allergens'}
+          ${currentLang === 'it' 
+            ? "Per darle un'alternativa corretta alle sue esigenze la contatteremo al più presto" 
+            : "To offer you a suitable alternative we will contact you shortly"}
         </div>
       </div>
     `;
@@ -3704,8 +4024,9 @@ function submitOrder() {
   const items = [];
   
   // Contatori per validazione
-  let adultPrimi = 0, adultMains = 0; // primi = piatti del giorno + pizze (adulti)
-  let kidPrimi = 0, kidMains = 0;    // kid mains = secondi bambini + pizze baby
+  let adultPrimi = 0, adultMains = 0; // primi piatti + secondi piatti adulti (esclusa pizza)
+  let kidPrimi = 0, kidMains = 0;     // primi piatti + secondi piatti bambini (esclusa pizza)
+  let adultPizza = 0, kidPizza = 0;   // pizze ordinate
   
   CATEGORIES.forEach(cat => {
     if (cat.kidsOnly && children === 0) return;
@@ -3732,14 +4053,20 @@ function submitOrder() {
           Object.keys(variants.byAllergen).forEach(allergenKey => {
             const q = variants.byAllergen[allergenKey];
             if (q > 0) {
-              const variantLabel = variantKeyToLabel(allergenKey, 'it'); // es. "GLUTINE E LATTE" o "GLUTINE"
+              const variantLabel = variantKeyToLabel(allergenKey, 'it');
+              // Se è una variante per UN SOLO allergene (non composita "all_*") e il piatto
+              // ha un'alternativa configurata dall'admin, la salviamo nell'item per la cucina
+              const altDish = (!allergenKey.startsWith('all_') && dish.alternatives && dish.alternatives[allergenKey])
+                ? dish.alternatives[allergenKey].trim()
+                : '';
               items.push({
                 category: sub.key,
                 dishName: dish.name_it,
                 dishNameEn: dish.name_en || '',
                 qty: q,
                 excludeAllergen: allergenKey,
-                excludeAllergenName: variantLabel
+                excludeAllergenName: variantLabel,
+                alternativeDish: altDish || null
               });
             }
           });
@@ -3772,13 +4099,17 @@ function submitOrder() {
         const q = variants.byAllergen[allergenKey];
         if (q > 0) {
           const variantLabel = variantKeyToLabel(allergenKey, 'it');
+          const altDish = (!allergenKey.startsWith('all_') && dish.alternatives && dish.alternatives[allergenKey])
+            ? dish.alternatives[allergenKey].trim()
+            : '';
           items.push({
             category: cat.key,
             dishName: dish.name_it,
             dishNameEn: dish.name_en || '',
             qty: q,
             excludeAllergen: allergenKey,
-            excludeAllergenName: variantLabel
+            excludeAllergenName: variantLabel,
+            alternativeDish: altDish || null
           });
         }
       });
@@ -3790,7 +4121,7 @@ function submitOrder() {
     });
   });
 
-  // Aggiungi le pizze ordinate (Prima Uscita) come righe separate
+  // Aggiungi le pizze ordinate come righe separate
   pizzaOrders.adult.forEach(pizzaOrder => {
     const flavor = DB.pizzaConfig.adultFlavors[pizzaOrder.flavorIdx];
     if (!flavor) return;
@@ -3803,9 +4134,10 @@ function submitOrder() {
       dishNameEn: flavor.name_en || '',
       qty: 1,
       pizzaSide: side ? side.name_it : null,
-      pizzaSideEn: side ? (side.name_en || side.name_it) : null
+      pizzaSideEn: side ? (side.name_en || side.name_it) : null,
+      lactoseFree: !!pizzaOrder.lactoseFree
     });
-    adultPrimi++;
+    adultPizza++;
   });
   pizzaOrders.kid.forEach(pizzaOrder => {
     const flavor = DB.pizzaConfig.kidFlavors[pizzaOrder.flavorIdx];
@@ -3819,9 +4151,10 @@ function submitOrder() {
       dishNameEn: flavor.name_en || '',
       qty: 1,
       pizzaSide: side ? side.name_it : null,
-      pizzaSideEn: side ? (side.name_en || side.name_it) : null
+      pizzaSideEn: side ? (side.name_en || side.name_it) : null,
+      lactoseFree: !!pizzaOrder.lactoseFree
     });
-    kidPrimi++;
+    kidPizza++;
   });
 
   if (items.length === 0) {
@@ -3862,34 +4195,39 @@ function submitOrder() {
     submittedAt: new Date().toISOString()
   };
 
-  // Validazione MASSIMI: ogni persona può avere al massimo 1 primo + 1 secondo/pizza
-  // Se si supera, blocchiamo completamente l'invio (errore, non warning)
+  // Validazione MASSIMI:
+  // Regola: ogni persona può scegliere O Menu Pizza O (primo + secondo).
+  // - adultPrimi + adultPizza ≤ adults  (numero massimo prime uscite + pizze)
+  // - adultMains ≤ adults - adultPizza  (chi ha pizza non può avere secondo)
+  // - lo stesso per i bambini
   const exceeded = [];
   if (adults > 0) {
-    if (adultPrimi > adults) {
+    if (adultPrimi + adultPizza > adults) {
       exceeded.push({
-        label_it: 'Prima Uscita o Pizze (adulti)', label_en: 'First courses or Pizzas (adults)',
-        max: adults, got: adultPrimi
+        label_it: 'Prima Uscita o Menu Pizza (adulti)', label_en: 'First courses or Pizza Menu (adults)',
+        max: adults, got: adultPrimi + adultPizza
       });
     }
-    if (adultMains > adults) {
+    if (adultMains > adults - adultPizza) {
       exceeded.push({
-        label_it: 'Seconda Uscita (adulti)', label_en: 'Second courses (adults)',
-        max: adults, got: adultMains
+        label_it: `Seconda Uscita (adulti) — chi sceglie il Menu Pizza non può scegliere un secondo`,
+        label_en: `Second courses (adults) — Pizza Menu excludes the second course`,
+        max: Math.max(0, adults - adultPizza), got: adultMains
       });
     }
   }
   if (children > 0) {
-    if (kidPrimi > children) {
+    if (kidPrimi + kidPizza > children) {
       exceeded.push({
-        label_it: 'Prima Uscita Bambini o Pizze Baby', label_en: 'Kids\' First courses or Baby Pizzas',
-        max: children, got: kidPrimi
+        label_it: 'Prima Uscita Bambini o Menu Pizza Baby', label_en: 'Kids\' First courses or Baby Pizza Menu',
+        max: children, got: kidPrimi + kidPizza
       });
     }
-    if (kidMains > children) {
+    if (kidMains > children - kidPizza) {
       exceeded.push({
-        label_it: 'Seconda Uscita Bambini', label_en: 'Kids\' Second courses',
-        max: children, got: kidMains
+        label_it: `Seconda Uscita Bambini — chi sceglie il Menu Pizza Baby non può scegliere un secondo`,
+        label_en: `Kids\' Second courses — Baby Pizza Menu excludes the second course`,
+        max: Math.max(0, children - kidPizza), got: kidMains
       });
     }
   }
@@ -3899,33 +4237,39 @@ function submitOrder() {
     return;
   }
   
-  // Validazione MINIMI: warning morbido, l'utente può scegliere di inviare lo stesso
+  // Validazione MINIMI: warning morbido
+  // Ogni persona deve avere o un primo o una pizza (uno o l'altro)
+  // Chi non ha pizza deve avere anche un secondo
   const missing = [];
   if (adults > 0) {
-    if (adultPrimi < adults) {
+    if (adultPrimi + adultPizza < adults) {
       missing.push({ 
-        label_it: 'Prima Uscita o Pizze (adulti)', label_en: 'First courses or Pizzas (adults)',
-        expected: adults, got: adultPrimi 
+        label_it: 'Prima Uscita o Menu Pizza (adulti)', label_en: 'First courses or Pizza Menu (adults)',
+        expected: adults, got: adultPrimi + adultPizza
       });
     }
-    if (adultMains < adults) {
+    // Chi NON ha pizza deve avere un secondo
+    const expectedMains = adults - adultPizza;
+    if (adultMains < expectedMains) {
       missing.push({ 
         label_it: 'Seconda Uscita (adulti)', label_en: 'Second courses (adults)',
-        expected: adults, got: adultMains 
+        expected: expectedMains, got: adultMains
       });
     }
   }
   if (children > 0) {
-    if (kidPrimi < children) {
+    if (kidPrimi + kidPizza < children) {
       missing.push({ 
-        label_it: 'Prima Uscita Bambini o Pizze Baby', label_en: 'Kids\' First courses or Baby Pizzas',
-        expected: children, got: kidPrimi 
+        label_it: 'Prima Uscita Bambini o Menu Pizza Baby', label_en: 'Kids\' First courses or Baby Pizza Menu',
+        expected: children, got: kidPrimi + kidPizza
       });
     }
-    if (kidMains < children) {
+    // Chi NON ha pizza baby deve avere un secondo bambini
+    const expectedKidMains = children - kidPizza;
+    if (kidMains < expectedKidMains) {
       missing.push({ 
         label_it: 'Seconda Uscita Bambini', label_en: 'Kids\' Second courses',
-        expected: children, got: kidMains 
+        expected: expectedKidMains, got: kidMains
       });
     }
   }
@@ -3956,8 +4300,8 @@ function showMaxExceededModal(exceeded) {
     ? 'Troppi piatti selezionati'
     : 'Too many dishes selected';
   document.getElementById('confirm-subtitle').textContent = currentLang === 'it'
-    ? 'Ogni persona può scegliere al massimo 1 primo e 1 secondo o pizza. Riduci le quantità prima di inviare.'
-    : 'Each person can choose at most 1 first course and 1 second course or pizza. Please reduce the quantities before submitting.';
+    ? 'Ogni persona può scegliere o il MENU PIZZA (pizza + stuzzicheria) oppure un primo e un secondo dal menù di mezza pensione. Riduci le quantità prima di inviare.'
+    : 'Each person can choose either the PIZZA MENU (pizza + side) or a first and a second course from the half board menu. Please reduce the quantities before submitting.';
   
   // Nascondi "Invia comunque" perché è un errore bloccante
   const btns = document.querySelectorAll('#confirm-modal .actions .btn');
@@ -4175,6 +4519,30 @@ function buildPizzaItemEditor(kind, item, idx) {
     allergenLabel = labels.join(' · ');
   }
   
+  // Tipo pizza (bianca/rossa) - solo per i gusti, non per i contorni
+  const isFlavor = (kind === 'adultFlavors' || kind === 'kidFlavors');
+  const currentType = item.type || 'red'; // default rossa per retrocompatibilità
+  
+  const typeSelectorHtml = isFlavor ? `
+    <div class="field" style="margin-top: 8px;">
+      <label>Tipo</label>
+      <div style="display: flex; gap: 8px;">
+        <button type="button" 
+                onclick="updatePizzaItem('${kind}', ${idx}, 'type', 'red')"
+                class="pizza-type-btn ${currentType === 'red' ? 'active' : ''}"
+                style="flex: 1; padding: 10px; border: 1.5px solid ${currentType === 'red' ? 'var(--error)' : 'var(--line)'}; background: ${currentType === 'red' ? 'rgba(161,60,60,0.08)' : 'var(--paper)'}; color: ${currentType === 'red' ? 'var(--error)' : 'var(--ink-muted)'}; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;">
+          🍅 Pizza Rossa
+        </button>
+        <button type="button"
+                onclick="updatePizzaItem('${kind}', ${idx}, 'type', 'white')"
+                class="pizza-type-btn ${currentType === 'white' ? 'active' : ''}"
+                style="flex: 1; padding: 10px; border: 1.5px solid ${currentType === 'white' ? 'var(--accent-warm)' : 'var(--line)'}; background: ${currentType === 'white' ? 'rgba(140,110,74,0.08)' : 'var(--paper)'}; color: ${currentType === 'white' ? 'var(--accent-warm)' : 'var(--ink-muted)'}; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;">
+          🤍 Pizza Bianca
+        </button>
+      </div>
+    </div>
+  ` : '';
+  
   de.innerHTML = `
     <div class="field-row">
       <div class="field">
@@ -4186,6 +4554,7 @@ function buildPizzaItemEditor(kind, item, idx) {
         <input type="text" value="${escapeHtml(item.name_en || '')}" oninput="updatePizzaItem('${kind}', ${idx}, 'name_en', this.value)">
       </div>
     </div>
+    ${typeSelectorHtml}
     <div class="field" style="margin-top: 8px;">
       <label>Allergeni</label>
       <button class="allergen-picker-btn" onclick="openPizzaItemAllergenPicker('${kind}', ${idx})">
@@ -4211,6 +4580,12 @@ let _updatePizzaTimer = null;
 function updatePizzaItem(kind, idx, field, val) {
   if (!DB.pizzaConfig[kind] || !DB.pizzaConfig[kind][idx]) return;
   DB.pizzaConfig[kind][idx][field] = val;
+  // Per il campo "type" (toggle bianca/rossa) re-render immediato per UI feedback
+  if (field === 'type') {
+    DB.savePizzaConfig(DB.pizzaConfig);
+    renderPizzaConfigEditor();
+    return;
+  }
   markAdminTyping();
   if (_updatePizzaTimer) clearTimeout(_updatePizzaTimer);
   _updatePizzaTimer = setTimeout(() => {
@@ -4499,6 +4874,42 @@ function buildDishEditor(catKey, dish, idx) {
     allergenLabel = labels.join(' · ');
   }
   
+  // Sezione "alternative": un input per ogni allergene presente nel piatto
+  // Permette all'admin di specificare un piatto alternativo da servire quando l'ospite
+  // chiede la versione "senza X". Es: "Pasta al ragù" senza latte → "Pasta al pomodoro"
+  let alternativesHtml = '';
+  if (allergenNums.length > 0) {
+    const alts = dish.alternatives || {};
+    const sortedNums = [...allergenNums].sort((a,b) => parseInt(a)-parseInt(b));
+    alternativesHtml = `
+      <div class="field" style="margin-top: 10px;">
+        <label style="display: flex; align-items: center; gap: 6px;">
+          Alternative per allergene
+          <span style="font-size: 10px; color: var(--ink-muted); font-weight: 400; letter-spacing: 0; text-transform: none;">— se quel piatto non si può servire senza l'allergene, qui scrivi il piatto alternativo da preparare</span>
+        </label>
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 4px;">
+          ${sortedNums.map(num => {
+            const a = ALLERGENS.find(x => x.num === num);
+            const allergenName = a ? a.it : num;
+            const currentValue = (alts[num] || '');
+            return `
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="flex-shrink: 0; min-width: 130px; font-size: 12px; color: var(--ink-muted); font-family: 'Inter', sans-serif;">
+                  Senza <strong style="color: var(--accent-warm); text-transform: uppercase; letter-spacing: 0.03em;">${escapeHtml(allergenName)}</strong>:
+                </span>
+                <input type="text" 
+                       placeholder="(facoltativo) es. Pasta al pomodoro" 
+                       value="${escapeHtml(currentValue)}"
+                       oninput="updateDishAlternative('${catKey}', ${idx}, '${num}', this.value)"
+                       style="flex: 1;">
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
   de.innerHTML = `
     <div class="field-row">
       <div class="field">
@@ -4527,6 +4938,7 @@ function buildDishEditor(catKey, dish, idx) {
         <span class="picker-edit">✎ Modifica</span>
       </button>
     </div>
+    ${alternativesHtml}
     <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
       <button class="remove" onclick="removeDish('${catKey}',${idx})">✕ Rimuovi piatto</button>
     </div>
@@ -4738,6 +5150,27 @@ function updateDish(cat, idx, field, val) {
   _updateDishTimer = setTimeout(() => { persistCurrentDay(); }, 600);
 }
 
+// Aggiorna l'alternativa di un piatto per uno specifico allergene
+// es. Pasta al ragù SENZA latte → Pasta al pomodoro
+function updateDishAlternative(cat, idx, allergenNum, val) {
+  if (!DB.menus[selectedEditorDate]?.[cat]?.[idx]) return;
+  const dish = DB.menus[selectedEditorDate][cat][idx];
+  if (!dish.alternatives) dish.alternatives = {};
+  const trimmed = (val || '').trim();
+  if (trimmed === '') {
+    delete dish.alternatives[allergenNum];
+    // Se vuoto pulisco l'oggetto
+    if (Object.keys(dish.alternatives).length === 0) {
+      delete dish.alternatives;
+    }
+  } else {
+    dish.alternatives[allergenNum] = val;
+  }
+  markAdminTyping();
+  if (_updateDishTimer) clearTimeout(_updateDishTimer);
+  _updateDishTimer = setTimeout(() => { persistCurrentDay(); }, 600);
+}
+
 async function removeDish(cat, idx) {
   if (!confirm('Rimuovere questo piatto?')) return;
   DB.menus[selectedEditorDate][cat].splice(idx, 1);
@@ -4827,7 +5260,8 @@ function renderOrders() {
     o.items.forEach(i => {
       const variantKey = i.excludeAllergen ? `|NO_${i.excludeAllergen}` : '';
       const sideKey = i.pizzaSide ? `|+${i.pizzaSide}` : '';
-      const key = `${i.category}|${i.dishName}${variantKey}${sideKey}`;
+      const lactoseKey = i.lactoseFree ? '|LACT_FREE' : '';
+      const key = `${i.category}|${i.dishName}${variantKey}${sideKey}${lactoseKey}`;
       if (!agg[key]) {
         agg[key] = { 
           category: i.category, 
@@ -4835,7 +5269,9 @@ function renderOrders() {
           qty: 0,
           excludeAllergen: i.excludeAllergen || null,
           excludeAllergenName: i.excludeAllergenName || null,
-          pizzaSide: i.pizzaSide || null
+          pizzaSide: i.pizzaSide || null,
+        lactoseFree: !!i.lactoseFree,
+          alternativeDish: i.alternativeDish || null
         };
       }
       agg[key].qty += i.qty;
@@ -4884,10 +5320,17 @@ function renderOrders() {
         const sideInfo = item.pizzaSide
           ? `<div style="font-size: 11px; color: var(--ink-muted); font-style: italic; margin-top: 2px;">+ ${item.pizzaSide}</div>`
           : '';
+        const lactoseInfo = item.lactoseFree
+          ? `<span style="display: inline-block; margin-left: 6px; padding: 2px 8px; background: var(--accent-warm); color: var(--paper); border-radius: 100px; font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.05em;">MOZZARELLA SENZA LATTOSIO</span>`
+          : '';
+        const altInfo = item.alternativeDish
+          ? `<div style="font-size: 12px; color: var(--accent-warm); font-weight: 600; margin-top: 4px; font-family: 'Inter', sans-serif;">→ Alternativa: ${escapeHtml(item.alternativeDish)}</div>`
+          : '';
         row.innerHTML = `
           <div>
-            <div style="font-family: 'Fraunces', serif; font-size: 15px;">${item.name}${variantTag}</div>
+            <div style="font-family: 'Fraunces', serif; font-size: 15px;">${item.name}${variantTag}${lactoseInfo}</div>
             ${sideInfo}
+            ${altInfo}
             <div class="agg-bar"><div class="agg-fill" style="width: ${(item.qty / maxQty * 100)}%;"></div></div>
           </div>
           <div class="agg-qty">${item.qty}</div>
@@ -4951,8 +5394,14 @@ function renderOrders() {
             ? ` <span style="display: inline-block; margin-left: 4px; padding: 1px 6px; background: var(--accent-warm); color: var(--paper); border-radius: 100px; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; vertical-align: middle;">SENZA ${i.excludeAllergenName}</span>`
             : '';
           const sideText = i.pizzaSide ? ` <span style="font-style: italic; color: var(--ink-muted); font-size: 11px;">+ ${i.pizzaSide}</span>` : '';
+          const lactoseBadge = i.lactoseFree
+            ? ` <span style="display: inline-block; margin-left: 4px; padding: 1px 6px; background: var(--accent-warm); color: var(--paper); border-radius: 100px; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; vertical-align: middle;">MOZZARELLA SENZA LATTOSIO</span>`
+            : '';
+          const altLine = i.alternativeDish
+            ? `<div style="font-size: 11px; color: var(--accent-warm); font-weight: 600; margin-left: 18px; margin-top: 2px; font-family: 'Inter', sans-serif;">→ Alternativa: ${escapeHtml(i.alternativeDish)}</div>`
+            : '';
           const pizzaIcon = (i.category === 'pizza_adult' || i.category === 'pizza_kid') ? '🍕 ' : '';
-          itemsHtml += `<div class="order-item"><span class="name">${pizzaIcon}${i.dishName}${variantBadge}${sideText}</span><span class="qty-badge">×${i.qty}</span></div>`;
+          itemsHtml += `<div class="order-item"><span class="name">${pizzaIcon}${i.dishName}${variantBadge}${sideText}${lactoseBadge}</span><span class="qty-badge">×${i.qty}</span></div>${altLine}`;
         });
       });
       // Alert intolleranze se presenti (versione per-persona)
@@ -5086,12 +5535,14 @@ function renderEditOrderBody() {
       ? ` <span style="display: inline-block; padding: 1px 6px; background: var(--accent-warm); color: var(--paper); border-radius: 100px; font-size: 9px; font-weight: 700; letter-spacing: 0.05em; vertical-align: middle;">SENZA ${item.excludeAllergenName}</span>`
       : '';
     const sideText = item.pizzaSide ? `<div style="font-size: 11px; color: var(--ink-muted); font-style: italic;">+ ${escapeHtml(item.pizzaSide)}</div>` : '';
+    const altText = item.alternativeDish ? `<div style="font-size: 11px; color: var(--accent-warm); font-weight: 600; margin-top: 2px; font-family: 'Inter', sans-serif;">→ Alternativa: ${escapeHtml(item.alternativeDish)}</div>` : '';
     
     row.innerHTML = `
       <div style="flex: 1; min-width: 0;">
         <div style="font-size: 10px; letter-spacing: 0.05em; color: var(--ink-muted); text-transform: uppercase;">${catLabel}</div>
         <div style="font-family: 'Fraunces', serif; font-size: 14px; color: var(--ink);">${escapeHtml(item.dishName)}${variantTag}</div>
         ${sideText}
+        ${altText}
       </div>
       <div class="qty" style="margin: 0;">
         <button onclick="changeEditOrderQty(${idx}, -1)">−</button>
@@ -5286,11 +5737,14 @@ function buildPrintOverlay(mode) {
     (o.items || []).forEach(i => {
       const variantKey = i.excludeAllergen ? `|NO_${i.excludeAllergen}` : '';
       const sideKey = i.pizzaSide ? `|+${i.pizzaSide}` : '';
-      const key = `${i.category}|${i.dishName}${variantKey}${sideKey}`;
+      const lactoseKey = i.lactoseFree ? '|LACT_FREE' : '';
+      const key = `${i.category}|${i.dishName}${variantKey}${sideKey}${lactoseKey}`;
       if (!agg[key]) agg[key] = { 
         category: i.category, name: i.dishName, qty: 0,
         excludeAllergenName: i.excludeAllergenName || null,
-        pizzaSide: i.pizzaSide || null
+        pizzaSide: i.pizzaSide || null,
+        lactoseFree: !!i.lactoseFree,
+          alternativeDish: i.alternativeDish || null
       };
       agg[key].qty += i.qty;
     });
@@ -5360,8 +5814,10 @@ function buildPrintOverlay(mode) {
         html += `<div class="print-cat-block"><h3 class="print-cat-title">${catLabels[catKey] || catKey}</h3><table class="print-table">`;
         catItems.sort((a,b) => b.qty - a.qty).forEach(item => {
           const variantTag = item.excludeAllergenName ? `<span class="print-variant">SENZA ${item.excludeAllergenName}</span>` : '';
+          const lactoseTag = item.lactoseFree ? `<span class="print-variant">MOZZARELLA SENZA LATTOSIO</span>` : '';
           const sideText = item.pizzaSide ? `<div class="print-side">+ ${escapeHtml(item.pizzaSide)}</div>` : '';
-          html += `<tr><td class="print-name">${escapeHtml(item.name)} ${variantTag}${sideText}</td><td class="print-qty">${item.qty}</td></tr>`;
+          const altText = item.alternativeDish ? `<div class="print-alt">→ Alternativa: ${escapeHtml(item.alternativeDish)}</div>` : '';
+          html += `<tr><td class="print-name">${escapeHtml(item.name)} ${variantTag} ${lactoseTag}${sideText}${altText}</td><td class="print-qty">${item.qty}</td></tr>`;
         });
         html += `</table></div>`;
       });
@@ -5397,20 +5853,11 @@ function buildPrintOverlay(mode) {
           intolHtml += `</div>`;
         }
         
-        // Items con ORDINE CATEGORIE specifico per servizio in cucina:
-        // 1. Prima Portata, 2. Prima Portata Baby, 3. Pizza, 4. Pizza Baby,
-        // 5. Seconda Portata, 6. Contorni, 7. Seconda Portata Baby
-        const familyCatOrder = [
-          'primi',          // Prima Portata
-          'bambini_primi',  // Prima Portata Baby
-          'pizza_adult',    // Pizza
-          'pizza_kid',      // Pizza Baby
-          'secondi',        // Seconda Portata
-          'contorni',       // Contorni
-          'bambini_secondi',// Seconda Portata Baby
-          // Categorie legacy in coda
-          'pizze', 'pizze_baby'
-        ];
+        // Items raggruppati in due MACRO-SEZIONI per la stampa famiglia:
+        // PRIMA USCITA  = bambini_primi → primi → pizza_kid → pizza_adult
+        // SECONDA USCITA = bambini_secondi → secondi → contorni
+        const primaUscitaCats = ['bambini_primi', 'primi', 'pizza_kid', 'pizza_adult', 'pizze', 'pizze_baby'];
+        const secondaUscitaCats = ['bambini_secondi', 'secondi', 'contorni'];
         
         // Raggruppo gli items per categoria
         const itemsByCat = {};
@@ -5418,22 +5865,45 @@ function buildPrintOverlay(mode) {
           if (!itemsByCat[i.category]) itemsByCat[i.category] = [];
           itemsByCat[i.category].push(i);
         });
-        // Aggiungo eventuali categorie non previste in coda (safety net)
-        Object.keys(itemsByCat).forEach(cat => {
-          if (!familyCatOrder.includes(cat)) familyCatOrder.push(cat);
-        });
+        
+        // Helper per renderizzare le righe items di un set di categorie
+        const renderItemsRows = (catList) => {
+          let rows = '';
+          catList.forEach(catKey => {
+            const catItems = itemsByCat[catKey];
+            if (!catItems || catItems.length === 0) return;
+            catItems.forEach(i => {
+              const variantTag = i.excludeAllergenName ? `<span class="print-variant">SENZA ${i.excludeAllergenName}</span>` : '';
+              const sideText = i.pizzaSide ? ` + ${escapeHtml(i.pizzaSide)}` : '';
+              const lactoseTag = i.lactoseFree ? `<span class="print-variant">MOZZARELLA SENZA LATTOSIO</span>` : '';
+              const altLine = i.alternativeDish ? `<div class="print-alt-family">→ Alternativa: ${escapeHtml(i.alternativeDish)}</div>` : '';
+              const pizzaIcon = (i.category === 'pizza_adult' || i.category === 'pizza_kid') ? '🍕 ' : '';
+              rows += `<tr><td>${pizzaIcon}${escapeHtml(i.dishName)} ${variantTag} ${lactoseTag}<span class="print-side-inline">${sideText}</span>${altLine}</td><td class="print-qty">×${i.qty}</td></tr>`;
+            });
+          });
+          return rows;
+        };
+        
+        // Verifico se ci sono items in ciascuna macro-sezione
+        const hasPrima = primaUscitaCats.some(c => itemsByCat[c]?.length > 0);
+        const hasSeconda = secondaUscitaCats.some(c => itemsByCat[c]?.length > 0);
+        
+        // Categorie "altre" non previste, le mostro in fondo senza sezione
+        const knownCats = [...primaUscitaCats, ...secondaUscitaCats];
+        const otherCats = Object.keys(itemsByCat).filter(c => !knownCats.includes(c));
         
         let itemsHtml = '';
-        familyCatOrder.forEach(catKey => {
-          const catItems = itemsByCat[catKey];
-          if (!catItems || catItems.length === 0) return;
-          catItems.forEach(i => {
-            const variantTag = i.excludeAllergenName ? `<span class="print-variant">SENZA ${i.excludeAllergenName}</span>` : '';
-            const sideText = i.pizzaSide ? ` + ${escapeHtml(i.pizzaSide)}` : '';
-            const pizzaIcon = (i.category === 'pizza_adult' || i.category === 'pizza_kid') ? '🍕 ' : '';
-            itemsHtml += `<tr><td>${pizzaIcon}${escapeHtml(i.dishName)} ${variantTag}<span class="print-side-inline">${sideText}</span></td><td class="print-qty">×${i.qty}</td></tr>`;
-          });
-        });
+        if (hasPrima) {
+          itemsHtml += `<tr class="print-section-row"><td colspan="2" class="print-section-cell">PRIMA USCITA</td></tr>`;
+          itemsHtml += renderItemsRows(primaUscitaCats);
+        }
+        if (hasSeconda) {
+          itemsHtml += `<tr class="print-section-row"><td colspan="2" class="print-section-cell">SECONDA USCITA</td></tr>`;
+          itemsHtml += renderItemsRows(secondaUscitaCats);
+        }
+        if (otherCats.length > 0) {
+          itemsHtml += renderItemsRows(otherCats);
+        }
         
         html += `
           <div class="print-family-card">
@@ -5519,14 +5989,17 @@ function renderHistory() {
     o.items.forEach(i => {
       const variantKey = i.excludeAllergen ? `|NO_${i.excludeAllergen}` : '';
       const sideKey = i.pizzaSide ? `|+${i.pizzaSide}` : '';
-      const key = `${i.category}|${i.dishName}${variantKey}${sideKey}`;
+      const lactoseKey = i.lactoseFree ? '|LACT_FREE' : '';
+      const key = `${i.category}|${i.dishName}${variantKey}${sideKey}${lactoseKey}`;
       if (!agg[key]) agg[key] = { 
         category: i.category, 
         name: i.dishName, 
         qty: 0,
         excludeAllergen: i.excludeAllergen || null,
         excludeAllergenName: i.excludeAllergenName || null,
-        pizzaSide: i.pizzaSide || null
+        pizzaSide: i.pizzaSide || null,
+        lactoseFree: !!i.lactoseFree,
+          alternativeDish: i.alternativeDish || null
       };
       agg[key].qty += i.qty;
     });
@@ -5734,6 +6207,7 @@ Object.assign(window, {
   cancelVariant, confirmVariant, removeVariantOne,
   // Pizza configuratore
   openPizzaModal, selectPizzaOption, confirmPizzaConfig, cancelPizzaConfig, removePizzaOrder,
+  toggleLactoseFreeMozzarella, togglePizzaSection,
   // Commensali / intolleranze persona
   removeGuest, openPersonModal, savePersonIntolerances, clearPersonIntolerances,
   onPeopleCountChange,
@@ -5741,6 +6215,7 @@ Object.assign(window, {
   login, logout,
   // Admin menù
   toggleCategory, togglePublish, addDish, updateDish, removeDish,
+  updateDishAlternative,
   copyFromPreviousWeek, exportQR, togglePizzaCategory,
   toggleSwitchHourLock,
   // Admin menù pizza
