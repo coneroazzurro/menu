@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="Menù del pranzo - Borgo Conero, Villaggio Conero Azzurro">
-  <title>Menù Pranzo · Borgo Conero</title>
+  <meta name="description" content="Menù del pranzo - Conero Mare, Villaggio Conero Azzurro">
+  <title>Menù Pranzo · Conero Mare</title>
 
-  <!-- Preload dell'immagine principale per velocizzare la prima visualizzazione -->
-  <link rel="preload" as="image" href="menu.jpg">
+  <!-- Preload della prima immagine per velocizzare la visualizzazione iniziale -->
+  <link rel="preload" as="image" href="01-antipasti.jpg">
 
   <style>
     /* Reset essenziale */
@@ -28,29 +28,24 @@
     }
 
     body {
-      /* Scrolling fluido anche su iOS */
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Contenitore del menù */
     .menu-container {
       width: 100%;
-      max-width: 1200px; /* su tablet/desktop non si allarga oltre */
+      max-width: 1200px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
     }
 
-    /* Le immagini del menù */
     .menu-container img {
       width: 100%;
       height: auto;
       display: block;
-      /* Evita "salti" durante il caricamento */
       background: #f5f5f5;
     }
 
-    /* Stato di caricamento (mostrato solo se l'immagine ci mette tanto) */
     .loading {
       position: fixed;
       inset: 0;
@@ -71,7 +66,6 @@
       pointer-events: none;
     }
 
-    /* Messaggio di errore se l'immagine non si carica */
     .error-message {
       display: none;
       padding: 60px 30px;
@@ -94,63 +88,48 @@
 </head>
 <body>
 
-  <!-- Schermata di caricamento (sparisce appena l'immagine è pronta) -->
+  <!-- Schermata di caricamento (sparisce appena la prima immagine è pronta) -->
   <div class="loading" id="loading">Caricamento menù…</div>
 
-  <!-- Contenitore del menù -->
+  <!-- Contenitore del menù: 7 immagini in sequenza verticale -->
   <main class="menu-container" id="menu">
 
-    <!--
-      ============================================================
-      ISTRUZIONI:
-      ============================================================
-      1) SE HAI UN'UNICA IMMAGINE LUNGA (caso attuale):
-         Il file si chiama "menu.jpg" e basta caricarlo nella stessa cartella.
+    <img src="01-antipasti.jpg" alt="Antipasti e Piatti Freddi" id="menu-image" loading="eager"
+         onerror="document.getElementById('error').style.display='block'; document.getElementById('loading').classList.add('hidden');">
 
-      2) SE IN FUTURO VORRAI PIÙ IMMAGINI IN SEQUENZA:
-         Sostituisci la riga <img> qui sotto con più righe, esempio:
-         <img src="01-antipasti.jpg" alt="Antipasti">
-         <img src="02-primi.jpg" alt="Primi">
-         <img src="03-secondi.jpg" alt="Secondi">
-         <img src="04-dolci.jpg" alt="Dolci">
+    <img src="02-primi.jpg" alt="Primi Piatti" loading="lazy">
 
-      Il browser le mostra automaticamente una sotto l'altra,
-      senza spazi né stacchi.
-      ============================================================
-    -->
+    <img src="03-secondi.jpg" alt="Secondi e Contorni" loading="lazy">
 
-    <img
-      src="menu.jpg"
-      alt="Menù del pranzo - Borgo Conero"
-      id="menu-image"
-      onerror="document.getElementById('error').style.display='block'; document.getElementById('loading').classList.add('hidden');"
-    >
+    <img src="04-baby.jpg" alt="Menù Baby" loading="lazy">
+
+    <img src="05-dessert.jpg" alt="Dessert" loading="lazy">
+
+    <img src="06-bevande.jpg" alt="Bevande, Caffetteria e Birre" loading="lazy">
+
+    <img src="07-vini.jpg" alt="Vini" loading="lazy">
 
   </main>
 
-  <!-- Messaggio mostrato solo se l'immagine non si carica -->
   <div class="error-message" id="error">
     <h2>Menù momentaneamente non disponibile</h2>
     <p>Stiamo aggiornando il menù.<br>Chiedi pure al personale di sala.</p>
   </div>
 
   <script>
-    // Nasconde lo schermo di caricamento appena l'immagine è pronta
+    // Nasconde lo schermo di caricamento appena la prima immagine è pronta
     const menuImage = document.getElementById('menu-image');
     const loading = document.getElementById('loading');
 
     function hideLoading() {
       loading.classList.add('hidden');
-      // Dopo l'animazione, rimuoviamo del tutto l'elemento
       setTimeout(() => loading.remove(), 500);
     }
 
     if (menuImage.complete && menuImage.naturalHeight !== 0) {
-      // Immagine già caricata (cache)
       hideLoading();
     } else {
       menuImage.addEventListener('load', hideLoading);
-      // Fallback: dopo 5 secondi nascondiamo comunque il loader
       setTimeout(hideLoading, 5000);
     }
   </script>
