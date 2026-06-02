@@ -1648,6 +1648,15 @@ body.print-mode::before {
 }
 body.print-mode #print-overlay { margin-top: 60px; }
 
+/* Anteprima a schermo in modalità SCONTRINO (80mm) */
+body.print-mode.receipt-mode #print-overlay {
+  max-width: 80mm;
+  width: 80mm;
+  padding: 4mm 0;
+  font-family: 'Courier New', Courier, monospace;
+  background: white;
+}
+
 @media print {
   body.print-mode { background: white !important; }
   body.print-mode::before { display: none !important; }
@@ -1901,9 +1910,119 @@ body.print-mode #print-overlay { margin-top: 60px; }
     padding: 24px; 
   }
   
-  @page { margin: 0; size: A4; }
-}
-</style>
+  /* @page viene iniettato dinamicamente da doPrint (A4 o 80mm) */
+  
+  /* ===== MODALITÀ SCONTRINO 80mm (stampa per famiglia) ===== */
+  body.receipt-mode #print-overlay {
+    padding: 0 !important;
+    max-width: 80mm !important;
+    width: 80mm !important;
+    margin: 0 !important;
+    font-family: 'Courier New', Courier, monospace !important;
+  }
+  body.receipt-mode .print-page { max-width: 80mm; }
+  
+  .receipt-card {
+    width: 72mm;
+    padding: 3mm;
+    margin: 0 auto;
+    color: #000;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  .receipt-pagebreak { page-break-before: always; }
+  
+  .receipt-header { text-align: center; margin-bottom: 4px; }
+  .receipt-brand {
+    font-size: 12pt;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  .receipt-sub {
+    font-size: 9pt;
+    margin-top: 2px;
+  }
+  .receipt-date {
+    font-size: 11pt;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .receipt-divider {
+    font-size: 9pt;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 4px 0;
+    letter-spacing: -0.5px;
+  }
+  .receipt-family {
+    font-size: 16pt;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    margin: 2px 0;
+    line-height: 1.1;
+  }
+  .receipt-meta {
+    font-size: 10pt;
+    text-align: center;
+  }
+  .receipt-intol {
+    font-size: 10pt;
+    margin: 6px 0;
+    padding: 4px;
+    border: 2px solid #000;
+    font-weight: 700;
+  }
+  .receipt-intol strong { display: block; margin-bottom: 2px; font-size: 10pt; }
+  .receipt-section {
+    font-size: 11pt;
+    font-weight: 700;
+    text-align: center;
+    margin: 8px 0 4px 0;
+  }
+  .receipt-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 13pt;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-top: 4px;
+  }
+  .receipt-item-qty {
+    flex-shrink: 0;
+    min-width: 18px;
+  }
+  .receipt-item-name { flex: 1; }
+  .receipt-item-note {
+    font-size: 10pt;
+    font-weight: 400;
+    margin-left: 24px;
+    line-height: 1.2;
+  }
+  .receipt-item-alt {
+    font-size: 10pt;
+    font-weight: 700;
+    margin-left: 24px;
+    line-height: 1.2;
+    border-left: 3px solid #000;
+    padding-left: 4px;
+  }
+  .receipt-footer {
+    font-size: 14pt;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+  .receipt-cut {
+    text-align: center;
+    font-size: 9pt;
+    margin-top: 8px;
+    color: #888;
+  }
+}</style>
 </head>
 <body>
 
@@ -2307,15 +2426,11 @@ body.print-mode #print-overlay { margin-top: 60px; }
     <div style="display: flex; flex-direction: column; gap: 10px; margin: 18px 0;">
       <button class="btn btn-primary" onclick="doPrint('aggregate')" style="display: flex; flex-direction: column; align-items: flex-start; padding: 14px 18px; text-align: left;">
         <span style="font-size: 14px; font-weight: 600;">📋 Riepilogo cucina</span>
-        <span style="font-size: 11px; opacity: 0.85; margin-top: 2px; font-weight: 400;">Lista aggregata di tutti i piatti con i totali</span>
+        <span style="font-size: 11px; opacity: 0.85; margin-top: 2px; font-weight: 400;">Lista aggregata di tutti i piatti con i totali — formato A4</span>
       </button>
       <button class="btn btn-ghost" onclick="doPrint('families')" style="display: flex; flex-direction: column; align-items: flex-start; padding: 14px 18px; text-align: left;">
-        <span style="font-size: 14px; font-weight: 600;">👨‍👩‍👧‍👦 Lista per famiglia</span>
-        <span style="font-size: 11px; opacity: 0.85; margin-top: 2px; font-weight: 400;">Ogni famiglia con i suoi piatti, in ordine alfabetico</span>
-      </button>
-      <button class="btn btn-ghost" onclick="doPrint('both')" style="display: flex; flex-direction: column; align-items: flex-start; padding: 14px 18px; text-align: left;">
-        <span style="font-size: 14px; font-weight: 600;">📄 Entrambi</span>
-        <span style="font-size: 11px; opacity: 0.85; margin-top: 2px; font-weight: 400;">Riepilogo cucina + lista per famiglia, in un'unica stampa</span>
+        <span style="font-size: 14px; font-weight: 600;">🧾 Scontrini per famiglia</span>
+        <span style="font-size: 11px; opacity: 0.85; margin-top: 2px; font-weight: 400;">Uno scontrino per ogni famiglia — formato 80mm</span>
       </button>
     </div>
     <div style="text-align: center; margin-top: 6px;">
@@ -5195,20 +5310,143 @@ async function copyFromPreviousWeek() {
 }
 
 function exportQR() {
-  const url = window.location.href.split('#')[0].split('?')[0];
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(url)}`;
+  // Costruisco l'URL della pagina OSPITE (senza #admin, anche se siamo in admin)
+  const origin = window.location.origin;
+  const pathname = window.location.pathname;
+  const guestUrl = origin + pathname;
+  
+  // Uso api.qrserver.com (gratuito, no rate limit per uso normale)
+  const qrUrlPng = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=20&data=${encodeURIComponent(guestUrl)}`;
+  const qrUrlSvg = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&format=svg&margin=20&data=${encodeURIComponent(guestUrl)}`;
+  
   const w = window.open('', '_blank');
+  if (!w) {
+    showToast('Per generare il QR consenti i popup per questo sito');
+    return;
+  }
   w.document.write(`
-    <html><head><title>QR Code Menù</title>
-    <style>body{font-family:sans-serif;text-align:center;padding:40px;}img{border:1px solid #ddd;padding:20px;border-radius:12px;}</style>
-    </head><body>
-    <h1>QR Code — Menù Mezza Pensione</h1>
-    <p>${url}</p>
-    <img src="${qrUrl}" alt="QR">
-    <p style="margin-top:20px;color:#666;font-size:13px;">Stampa questo foglio e mettilo sui tavoli.</p>
-    <button onclick="window.print()" style="padding:10px 20px;margin-top:20px;">Stampa</button>
-    </body></html>
+    <!DOCTYPE html>
+    <html lang="it">
+    <head>
+      <meta charset="UTF-8">
+      <title>QR Code — Menù Mezza Pensione Conero Azzurro</title>
+      <style>
+        * { box-sizing: border-box; }
+        body { 
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          margin: 0; padding: 40px 20px;
+          background: #FAF8F4;
+          text-align: center;
+          color: #1a1a1a;
+        }
+        h1 { 
+          font-size: 24px; 
+          margin: 0 0 8px 0;
+          color: #286098;
+          font-weight: 600;
+        }
+        .subtitle { 
+          font-size: 14px; 
+          color: #666; 
+          margin-bottom: 30px;
+        }
+        .qr-frame {
+          display: inline-block;
+          padding: 32px;
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+          margin-bottom: 24px;
+        }
+        .qr-frame img { 
+          display: block;
+          width: 320px; 
+          height: 320px;
+        }
+        .url-box {
+          display: inline-block;
+          padding: 10px 16px;
+          background: white;
+          border: 1px dashed #ccc;
+          border-radius: 6px;
+          font-family: 'Courier New', monospace;
+          font-size: 13px;
+          color: #444;
+          margin-bottom: 24px;
+          word-break: break-all;
+          max-width: 90%;
+        }
+        .actions { 
+          display: flex; 
+          gap: 12px; 
+          justify-content: center; 
+          flex-wrap: wrap;
+          margin-bottom: 20px;
+        }
+        button, a.btn { 
+          padding: 12px 22px; 
+          background: #286098; 
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          text-decoration: none;
+          font-family: inherit;
+          transition: background 0.15s;
+        }
+        button:hover, a.btn:hover { background: #1d4a78; }
+        button.secondary, a.btn.secondary { 
+          background: white; 
+          color: #286098; 
+          border: 1.5px solid #286098;
+        }
+        button.secondary:hover, a.btn.secondary:hover { 
+          background: #f0f4f8; 
+        }
+        .hint {
+          margin-top: 28px;
+          font-size: 12px;
+          color: #888;
+          max-width: 480px;
+          margin-left: auto;
+          margin-right: auto;
+          line-height: 1.5;
+        }
+        @media print {
+          body { background: white; padding: 20px; }
+          .actions, .hint { display: none; }
+          .qr-frame { box-shadow: none; }
+          .url-box { background: white; }
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Villaggio Conero Azzurro</h1>
+      <p class="subtitle">Menù della Mezza Pensione — Ristorante Borgo Conero</p>
+      
+      <div class="qr-frame">
+        <img src="${qrUrlPng}" alt="QR Code Menù Borgo Conero">
+      </div>
+      
+      <div class="url-box">${guestUrl}</div>
+      
+      <div class="actions">
+        <a class="btn" href="${qrUrlPng}" download="qr-menu-conero.png">⬇ Scarica PNG</a>
+        <a class="btn secondary" href="${qrUrlSvg}" download="qr-menu-conero.svg">⬇ Scarica SVG (vettoriale)</a>
+        <button onclick="window.print()">🖨 Stampa subito</button>
+      </div>
+      
+      <p class="hint">
+        Stampa questo QR sui tavoli, sui cartoncini di benvenuto, o esponilo all'ingresso del ristorante.<br>
+        L'SVG è consigliato per stampe grandi (formato vettoriale, qualità infinita).<br>
+        Il PNG è ottimo per email, social, e stampe formato A6/A5.
+      </p>
+    </body>
+    </html>
   `);
+  w.document.close();
 }
 
 // ========================================================================
@@ -5694,21 +5932,36 @@ async function doPrint(mode) {
   document.body.classList.add('print-mode');
   document.body.dataset.printMode = mode;
   
+  // Inietto la regola @page dinamica: A4 per cucina, 80mm per scontrini famiglia
+  let pageStyle = document.getElementById('dynamic-page-style');
+  if (!pageStyle) {
+    pageStyle = document.createElement('style');
+    pageStyle.id = 'dynamic-page-style';
+    document.head.appendChild(pageStyle);
+  }
+  if (mode === 'families') {
+    document.body.classList.add('receipt-mode');
+    // Pagina larga 80mm, altezza automatica (continua)
+    pageStyle.textContent = '@media print { @page { size: 80mm auto; margin: 0; } }';
+  } else {
+    pageStyle.textContent = '@media print { @page { size: A4; margin: 0; } }';
+  }
+  
   // Pulizia: avviene SOLO quando il dialog di stampa si chiude.
   const cleanup = () => {
     document.body.classList.remove('print-mode');
+    document.body.classList.remove('receipt-mode');
     document.body.dataset.printMode = '';
     const overlay = document.getElementById('print-overlay');
     if (overlay) overlay.remove();
+    const ps = document.getElementById('dynamic-page-style');
+    if (ps) ps.textContent = '';
     isPrinting = false;
     window.removeEventListener('afterprint', cleanup);
   };
   window.addEventListener('afterprint', cleanup);
   
   // IMPORTANTE: aspetto che document.fonts sia ready (con timeout di sicurezza 500ms)
-  // Senza questo, alcuni browser (es. Chrome) aspettano fino a 60 secondi prima di
-  // mostrare il dialog di stampa, perché vogliono garantire che i font siano caricati.
-  // Il print overlay usa solo font di sistema, quindi non c'è davvero da aspettare.
   try {
     await Promise.race([
       document.fonts.ready,
@@ -5778,20 +6031,28 @@ function buildPrintOverlay(mode) {
   
   // Header brand
   const dateLabel = formatDateLabel(dateKey, 'it');
-  let html = `
-    <div class="print-page">
-      <div class="print-header">
-        <img src="${getEmbeddedLogoUrl()}" alt="Conero Azzurro" class="print-logo">
-        <div class="print-header-text">
-          <div class="print-brand">Villaggio Conero Azzurro</div>
-          <div class="print-subtitle">Borgo Conero — Mezza Pensione</div>
-          <div class="print-date">${dateLabel}</div>
+  let html = '';
+  
+  // Header generale con logo SOLO per il riepilogo cucina (A4).
+  // Gli scontrini famiglia hanno il proprio header termico.
+  if (mode === 'aggregate') {
+    html += `
+      <div class="print-page">
+        <div class="print-header">
+          <img src="${getEmbeddedLogoUrl()}" alt="Conero Azzurro" class="print-logo">
+          <div class="print-header-text">
+            <div class="print-brand">Villaggio Conero Azzurro</div>
+            <div class="print-subtitle">Borgo Conero — Mezza Pensione</div>
+            <div class="print-date">${dateLabel}</div>
+          </div>
         </div>
-      </div>
-  `;
+    `;
+  } else {
+    html += `<div class="print-page">`;
+  }
   
   // === SEZIONE RIEPILOGO CUCINA ===
-  if (mode === 'aggregate' || mode === 'both') {
+  if (mode === 'aggregate') {
     const totalFamilies = dayOrders.length;
     const totalPeople = dayOrders.reduce((s, o) => s + (o.adults || o.people || 0) + (o.children || 0), 0);
     const totalDishes = Object.values(agg).reduce((s, a) => s + a.qty, 0);
@@ -5825,94 +6086,114 @@ function buildPrintOverlay(mode) {
   }
   
   // === SEZIONE LISTA PER FAMIGLIA ===
-  if (mode === 'families' || mode === 'both') {
-    if (mode === 'both') {
-      html += `<div class="print-pagebreak"></div>`;
-    }
-    html += `<h2 class="print-section-title">Ordinazioni per Famiglia</h2>`;
+  if (mode === 'families') {
     if (dayOrders.length === 0) {
       html += `<p class="print-empty">Nessuna famiglia ha ordinato per questa data.</p>`;
     } else {
-      dayOrders.forEach(o => {
+      dayOrders.forEach((o, familyIndex) => {
         const adults = o.adults || o.people || 0;
         const children = o.children || 0;
+        
         // Intolleranze
         let intolHtml = '';
         const guestsWithInt = (o.guests || []).filter(g => 
           (g.intolerances && g.intolerances.length > 0) || (g.notes && g.notes.length > 0)
         );
         if (guestsWithInt.length > 0) {
-          intolHtml = `<div class="print-intol"><strong>⚠ Intolleranze:</strong>`;
+          intolHtml = `<div class="receipt-intol"><strong>!! INTOLLERANZE</strong>`;
           guestsWithInt.forEach(g => {
             const allergenLabels = (g.intolerances || []).map(num => {
               const a = ALLERGENS.find(x => x.num === num);
               return a ? a.it : num;
             }).join(', ');
-            intolHtml += `<div>${g.label}: ${allergenLabels}${g.notes ? ` — "${escapeHtml(g.notes)}"` : ''}</div>`;
+            intolHtml += `<div>${escapeHtml(g.label)}: ${allergenLabels}${g.notes ? ` - "${escapeHtml(g.notes)}"` : ''}</div>`;
           });
           intolHtml += `</div>`;
         }
         
-        // Items raggruppati in due MACRO-SEZIONI per la stampa famiglia:
-        // PRIMA USCITA  = bambini_primi → primi → pizza_kid → pizza_adult
+        // Items raggruppati in due MACRO-SEZIONI:
+        // PRIMA USCITA = bambini_primi → primi → pizza_kid → pizza_adult
         // SECONDA USCITA = bambini_secondi → secondi → contorni
         const primaUscitaCats = ['bambini_primi', 'primi', 'pizza_kid', 'pizza_adult', 'pizze', 'pizze_baby'];
         const secondaUscitaCats = ['bambini_secondi', 'secondi', 'contorni'];
         
-        // Raggruppo gli items per categoria
         const itemsByCat = {};
         (o.items || []).forEach(i => {
           if (!itemsByCat[i.category]) itemsByCat[i.category] = [];
           itemsByCat[i.category].push(i);
         });
         
-        // Helper per renderizzare le righe items di un set di categorie
-        const renderItemsRows = (catList) => {
+        // Helper per renderizzare le righe items (formato scontrino)
+        const renderReceiptRows = (catList) => {
           let rows = '';
           catList.forEach(catKey => {
             const catItems = itemsByCat[catKey];
             if (!catItems || catItems.length === 0) return;
             catItems.forEach(i => {
-              const variantTag = i.excludeAllergenName ? `<span class="print-variant">SENZA ${i.excludeAllergenName}</span>` : '';
-              const sideText = i.pizzaSide ? ` + ${escapeHtml(i.pizzaSide)}` : '';
-              const lactoseTag = i.lactoseFree ? `<span class="print-variant">MOZZARELLA SENZA LATTOSIO</span>` : '';
-              const altLine = i.alternativeDish ? `<div class="print-alt-family">→ Alternativa: ${escapeHtml(i.alternativeDish)}</div>` : '';
-              const pizzaIcon = (i.category === 'pizza_adult' || i.category === 'pizza_kid') ? '🍕 ' : '';
-              rows += `<tr><td>${pizzaIcon}${escapeHtml(i.dishName)} ${variantTag} ${lactoseTag}<span class="print-side-inline">${sideText}</span>${altLine}</td><td class="print-qty">×${i.qty}</td></tr>`;
+              const pizzaIcon = (i.category === 'pizza_adult' || i.category === 'pizza_kid') ? '* ' : '';
+              // Riga principale: quantità + nome
+              rows += `<div class="receipt-item">
+                <span class="receipt-item-qty">${i.qty}</span>
+                <span class="receipt-item-name">${pizzaIcon}${escapeHtml(i.dishName)}</span>
+              </div>`;
+              // Riga variante senza allergene
+              if (i.excludeAllergenName) {
+                rows += `<div class="receipt-item-note">>> SENZA ${escapeHtml(i.excludeAllergenName)}</div>`;
+              }
+              // Mozzarella senza lattosio
+              if (i.lactoseFree) {
+                rows += `<div class="receipt-item-note">>> MOZZARELLA SENZA LATTOSIO</div>`;
+              }
+              // Contorno pizza
+              if (i.pizzaSide) {
+                rows += `<div class="receipt-item-note">   + ${escapeHtml(i.pizzaSide)}</div>`;
+              }
+              // Alternativa (importante per cucina)
+              if (i.alternativeDish) {
+                rows += `<div class="receipt-item-alt">>> ALTERNATIVA: ${escapeHtml(i.alternativeDish)}</div>`;
+              }
             });
           });
           return rows;
         };
         
-        // Verifico se ci sono items in ciascuna macro-sezione
         const hasPrima = primaUscitaCats.some(c => itemsByCat[c]?.length > 0);
         const hasSeconda = secondaUscitaCats.some(c => itemsByCat[c]?.length > 0);
-        
-        // Categorie "altre" non previste, le mostro in fondo senza sezione
         const knownCats = [...primaUscitaCats, ...secondaUscitaCats];
         const otherCats = Object.keys(itemsByCat).filter(c => !knownCats.includes(c));
         
         let itemsHtml = '';
         if (hasPrima) {
-          itemsHtml += `<tr class="print-section-row"><td colspan="2" class="print-section-cell">PRIMA USCITA</td></tr>`;
-          itemsHtml += renderItemsRows(primaUscitaCats);
+          itemsHtml += `<div class="receipt-section">--- PRIMA USCITA ---</div>`;
+          itemsHtml += renderReceiptRows(primaUscitaCats);
         }
         if (hasSeconda) {
-          itemsHtml += `<tr class="print-section-row"><td colspan="2" class="print-section-cell">SECONDA USCITA</td></tr>`;
-          itemsHtml += renderItemsRows(secondaUscitaCats);
+          itemsHtml += `<div class="receipt-section">--- SECONDA USCITA ---</div>`;
+          itemsHtml += renderReceiptRows(secondaUscitaCats);
         }
         if (otherCats.length > 0) {
-          itemsHtml += renderItemsRows(otherCats);
+          itemsHtml += renderReceiptRows(otherCats);
         }
         
+        // Pagebreak tra uno scontrino e l'altro (non sul primo)
+        const pagebreakClass = familyIndex > 0 ? 'receipt-card receipt-pagebreak' : 'receipt-card';
+        
         html += `
-          <div class="print-family-card">
-            <div class="print-family-head">
-              <strong>${escapeHtml(o.family)}</strong>
-              <span class="print-family-meta">${adults} adulti · ${children} bambini</span>
+          <div class="${pagebreakClass}">
+            <div class="receipt-header">
+              <div class="receipt-brand">VILLAGGIO CONERO AZZURRO</div>
+              <div class="receipt-sub">Borgo Conero - Mezza Pensione</div>
+              <div class="receipt-date">${dateLabel}</div>
             </div>
+            <div class="receipt-divider">================================</div>
+            <div class="receipt-family">${escapeHtml(o.family)}</div>
+            <div class="receipt-meta">${adults} adulti  ${children} bambini</div>
+            <div class="receipt-divider">================================</div>
             ${intolHtml}
-            <table class="print-table-family">${itemsHtml}</table>
+            ${itemsHtml}
+            <div class="receipt-divider">================================</div>
+            <div class="receipt-footer">${escapeHtml(o.family)}</div>
+            <div class="receipt-cut">- - - - - - ✂ - - - - - -</div>
           </div>
         `;
       });
