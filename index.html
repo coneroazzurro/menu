@@ -1954,9 +1954,8 @@ body.print-mode.receipt-mode #print-overlay {
     margin: 2px 0;
     line-height: 1.1;
   }
-  .receipt-meta {
-    font-size: 13pt;
-    text-align: center;
+  .receipt-notes-space {
+    height: 16mm;
   }
   .receipt-intol {
     font-size: 13pt;
@@ -1971,6 +1970,9 @@ body.print-mode.receipt-mode #print-overlay {
     font-weight: 700;
     text-align: center;
     margin: 8px 0 4px 0;
+  }
+  .receipt-section-second {
+    margin: 16px 0 10px 0;
   }
   .receipt-item {
     display: flex;
@@ -6159,7 +6161,7 @@ function buildPrintOverlay(mode) {
           itemsHtml += renderReceiptRows(primaUscitaCats);
         }
         if (hasSeconda) {
-          itemsHtml += `<div class="receipt-section">--- SECONDA USCITA ---</div>`;
+          itemsHtml += `<div class="receipt-section receipt-section-second">--- SECONDA USCITA ---</div>`;
           itemsHtml += renderReceiptRows(secondaUscitaCats);
         }
         if (otherCats.length > 0) {
@@ -6173,12 +6175,12 @@ function buildPrintOverlay(mode) {
           <div class="${pagebreakClass}">
             <div class="receipt-date">${dateLabel}</div>
             <div class="receipt-family">${escapeHtml(o.family)}</div>
-            <div class="receipt-meta">${adults} adulti  ${children} bambini</div>
+            <div class="receipt-notes-space"></div>
             <div class="receipt-divider">================================</div>
             ${intolHtml}
             ${itemsHtml}
             <div class="receipt-divider">================================</div>
-            <div class="receipt-footer">${escapeHtml(o.family)}</div>
+            <div class="receipt-notes-space"></div>
             <div class="receipt-cut">- - - - - - ✂ - - - - - -</div>
           </div>
         `;
