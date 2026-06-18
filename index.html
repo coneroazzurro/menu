@@ -2021,6 +2021,9 @@ body.print-mode.receipt-mode #print-overlay {
   .receipt-notes-space {
     height: 16mm;
   }
+  .receipt-notes-top {
+    height: 8mm;
+  }
   .receipt-intol {
     font-size: 13pt;
     margin: 6px 0;
@@ -2057,6 +2060,13 @@ body.print-mode.receipt-mode #print-overlay {
     font-weight: 400;
     margin-left: 28px;
     line-height: 1.2;
+  }
+  .receipt-item-side {
+    font-size: 16pt;
+    font-weight: 700;
+    margin-left: 28px;
+    line-height: 1.3;
+    margin-top: 2px;
   }
   .receipt-item-alt {
     font-size: 13pt;
@@ -6316,9 +6326,9 @@ function buildPrintOverlay(mode) {
               if (i.lactoseFree) {
                 rows += `<div class="receipt-item-note">>> MOZZARELLA SENZA LATTOSIO</div>`;
               }
-              // Contorno pizza
+              // Contorno pizza (stesso stile delle portate per leggibilità in cucina)
               if (i.pizzaSide) {
-                rows += `<div class="receipt-item-note">   + ${escapeHtml(i.pizzaSide)}</div>`;
+                rows += `<div class="receipt-item-side">+ ${escapeHtml(i.pizzaSide)}</div>`;
               }
               // Alternativa (importante per cucina)
               if (i.alternativeDish) {
@@ -6336,7 +6346,7 @@ function buildPrintOverlay(mode) {
         
         let itemsHtml = '';
         if (hasPrima) {
-          itemsHtml += `<div class="receipt-section">--- PRIMA USCITA ---</div>`;
+          itemsHtml += `<div class="receipt-section receipt-section-first">--- PRIMA USCITA ---</div>`;
           itemsHtml += renderReceiptRows(primaUscitaCats);
         }
         if (hasSeconda) {
@@ -6365,7 +6375,7 @@ function buildPrintOverlay(mode) {
           <div class="${pagebreakClass}">
             <div class="receipt-date">${dateLabel}</div>
             <div class="receipt-family">${escapeHtml(o.family)}</div>
-            <div class="receipt-notes-space"></div>
+            <div class="receipt-notes-space receipt-notes-top"></div>
             <div class="receipt-divider">================================</div>
             ${intolHtml}
             ${itemsHtml}
