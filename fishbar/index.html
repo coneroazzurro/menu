@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Menù Fish Bar & Grill - Conero Mare, Villaggio Conero Azzurro">
+  <title>Fish Bar &amp; Grill · Conero Mare</title>
+
+  <!-- Preload della prima immagine per velocizzare la visualizzazione iniziale -->
+  <link rel="preload" as="image" href="01-crudi-tapas.jpg">
+
+  <style>
+    /* Reset essenziale */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      background: #ffffff;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+
+    body {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .menu-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .menu-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #f5f5f5;
+    }
+
+    .loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      z-index: 10;
+      transition: opacity 0.4s ease;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #888;
+      font-size: 14px;
+      letter-spacing: 0.05em;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .error-message {
+      display: none;
+      padding: 60px 30px;
+      text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #555;
+    }
+
+    .error-message h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .error-message p {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Schermata di caricamento (sparisce appena la prima immagine è pronta) -->
+  <div class="loading" id="loading">Caricamento menù…</div>
+
+  <!-- Contenitore del menù: 4 immagini in sequenza verticale -->
+  <main class="menu-container" id="menu">
+
+    <img src="01-crudi-tapas.jpg" alt="Crudi, Ostriche e Tapas di Mare" id="menu-image" loading="eager"
+         onerror="document.getElementById('error').style.display='block'; document.getElementById('loading').classList.add('hidden');">
+
+    <img src="02-pasta-grill-dessert.jpg" alt="Pasta, Cucina, Dal Grill e Dessert" loading="lazy">
+
+    <img src="03-bimbi.jpg" alt="Menù Bimbi" loading="lazy">
+
+    <img src="04-vini.jpg" alt="Vini Conero Mare" loading="lazy">
+
+  </main>
+
+  <div class="error-message" id="error">
+    <h2>Menù momentaneamente non disponibile</h2>
+    <p>Stiamo aggiornando il menù.<br>Chiedi pure al personale di sala.</p>
+  </div>
+
+  <script>
+    // Nasconde lo schermo di caricamento appena la prima immagine è pronta
+    const menuImage = document.getElementById('menu-image');
+    const loading = document.getElementById('loading');
+
+    function hideLoading() {
+      loading.classList.add('hidden');
+      setTimeout(() => loading.remove(), 500);
+    }
+
+    if (menuImage.complete && menuImage.naturalHeight !== 0) {
+      hideLoading();
+    } else {
+      menuImage.addEventListener('load', hideLoading);
+      setTimeout(hideLoading, 5000);
+    }
+  </script>
+
+</body>
+</html>
