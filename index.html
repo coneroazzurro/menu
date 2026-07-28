@@ -2530,6 +2530,10 @@ body.print-mode.receipt-mode #print-overlay {
         <span style="font-size: 14px; font-weight: 600;">🧾 Scontrini per famiglia</span>
         <span style="font-size: 11px; opacity: 0.85; margin-top: 2px; font-weight: 400;">Uno scontrino per ogni famiglia — formato 80mm</span>
       </button>
+      <button class="btn btn-ghost" onclick="doPrint('pizzeria')" style="display: flex; flex-direction: column; align-items: flex-start; padding: 14px 18px; text-align: left;">
+        <span style="font-size: 14px; font-weight: 600;">🍕 Stampa Pizzeria</span>
+        <span style="font-size: 11px; opacity: 0.85; margin-top: 2px; font-weight: 400;">Solo le pizze, per famiglia — formato 80mm</span>
+      </button>
     </div>
     <div style="text-align: center; margin-top: 6px;">
       <button class="btn btn-ghost" onclick="closePrintChoice()" style="font-size: 12px;">Annulla</button>
@@ -6121,7 +6125,7 @@ async function doPrint(mode) {
     pageStyle.id = 'dynamic-page-style';
     document.head.appendChild(pageStyle);
   }
-  if (mode === 'families') {
+  if (mode === 'families' || mode === 'pizzeria') {
     document.body.classList.add('receipt-mode');
     // Pagina larga 80mm, altezza automatica (continua)
     pageStyle.textContent = '@media print { @page { size: 80mm auto; margin: 0; } }';
@@ -6311,7 +6315,37 @@ function buildPrintOverlay(mode) {
           catList.forEach(catKey => {
             const catItems = itemsByCat[catKey];
             if (!catItems || catItems.length === 0) return;
+            
+            // RAGGRUPPAMENTO: righe identiche (stesso piatto + contorno + varianti)
+            // vengono sommate in un'unica riga. Serve soprattutto per le pizze, che
+            // vengono salvate come righe separate con qty 1 ciascuna.
+            const grouped = {};
+            const order = [];
             catItems.forEach(i => {
+              const key = [
+                i.dishName,
+                i.pizzaSide || '',
+                i.excludeAllergenName || '',
+                i.lactoseFree ? 'LF' : '',
+                i.alternativeDish || ''
+              ].join('||');
+              if (!grouped[key]) {
+                grouped[key] = {
+                  category: i.category,
+                  dishName: i.dishName,
+                  pizzaSide: i.pizzaSide || null,
+                  excludeAllergenName: i.excludeAllergenName || null,
+                  lactoseFree: !!i.lactoseFree,
+                  alternativeDish: i.alternativeDish || null,
+                  qty: 0
+                };
+                order.push(key);
+              }
+              grouped[key].qty += (i.qty || 1);
+            });
+            
+            order.forEach(key => {
+              const i = grouped[key];
               const pizzaIcon = (i.category === 'pizza_adult' || i.category === 'pizza_kid') ? '* ' : '';
               // Riga principale: quantità + nome
               rows += `<div class="receipt-item">
@@ -6320,11 +6354,11 @@ function buildPrintOverlay(mode) {
               </div>`;
               // Riga variante senza allergene
               if (i.excludeAllergenName) {
-                rows += `<div class="receipt-item-note">>> SENZA ${escapeHtml(i.excludeAllergenName)}</div>`;
+                rows += `<div class="receipt-item-note">&gt;&gt; SENZA ${escapeHtml(i.excludeAllergenName)}</div>`;
               }
               // Mozzarella senza lattosio
               if (i.lactoseFree) {
-                rows += `<div class="receipt-item-note">>> MOZZARELLA SENZA LATTOSIO</div>`;
+                rows += `<div class="receipt-item-note">&gt;&gt; MOZZARELLA SENZA LATTOSIO</div>`;
               }
               // Contorno pizza (stesso stile delle portate per leggibilità in cucina)
               if (i.pizzaSide) {
@@ -6332,7 +6366,7 @@ function buildPrintOverlay(mode) {
               }
               // Alternativa (importante per cucina)
               if (i.alternativeDish) {
-                rows += `<div class="receipt-item-alt">>> ALTERNATIVA: ${escapeHtml(i.alternativeDish)}</div>`;
+                rows += `<div class="receipt-item-alt">&gt;&gt; ALTERNATIVA: ${escapeHtml(i.alternativeDish)}</div>`;
               }
             });
           });
@@ -6380,6 +6414,97 @@ function buildPrintOverlay(mode) {
             ${intolHtml}
             ${itemsHtml}
             ${pizzaPartyHtml}
+            <div class="receipt-divider">================================</div>
+            <div class="receipt-notes-space"></div>
+            <div class="receipt-cut">- - - - - - ✂ - - - - - -</div>
+          </div>
+        `;
+      });
+    }
+  }
+  
+  // === STAMPA PIZZERIA: solo le pizze, uno scontrino per famiglia ===
+  if (mode === 'pizzeria') {
+    // Categorie pizza (incluse le legacy)
+    const pizzaCats = ['pizza_adult', 'pizza_kid', 'pizze', 'pizze_baby'];
+    
+    // Tengo solo le famiglie che hanno ordinato almeno una pizza
+    const pizzaOrdersList = dayOrders.filter(o => 
+      (o.items || []).some(i => pizzaCats.includes(i.category))
+    );
+    
+    if (pizzaOrdersList.length === 0) {
+      html += `<p class="print-empty">Nessuna pizza ordinata per questa data.</p>`;
+    } else {
+      pizzaOrdersList.forEach((o, familyIndex) => {
+        const pizzaItems = (o.items || []).filter(i => pizzaCats.includes(i.category));
+        
+        // RAGGRUPPAMENTO: pizze identiche (stesso gusto + contorno + varianti)
+        // vengono sommate in un'unica riga con la quantità totale
+        const grouped = {};
+        pizzaItems.forEach(i => {
+          const key = [
+            i.category,
+            i.dishName,
+            i.pizzaSide || '',
+            i.excludeAllergenName || '',
+            i.lactoseFree ? 'LF' : '',
+            i.alternativeDish || ''
+          ].join('||');
+          if (!grouped[key]) {
+            grouped[key] = {
+              category: i.category,
+              dishName: i.dishName,
+              pizzaSide: i.pizzaSide || null,
+              excludeAllergenName: i.excludeAllergenName || null,
+              lactoseFree: !!i.lactoseFree,
+              alternativeDish: i.alternativeDish || null,
+              qty: 0
+            };
+          }
+          grouped[key].qty += (i.qty || 1);
+        });
+        
+        // Ordino: prima le pizze adulti, poi quelle bambini
+        const groupedList = Object.values(grouped).sort((a, b) => {
+          const rank = c => (c === 'pizza_kid' || c === 'pizze_baby') ? 1 : 0;
+          const r = rank(a.category) - rank(b.category);
+          if (r !== 0) return r;
+          return a.dishName.localeCompare(b.dishName);
+        });
+        
+        let itemsHtml = '';
+        groupedList.forEach(g => {
+          const isKid = (g.category === 'pizza_kid' || g.category === 'pizze_baby');
+          const kidTag = isKid ? ' (BABY)' : '';
+          itemsHtml += `<div class="receipt-item">
+            <span class="receipt-item-qty">${g.qty}</span>
+            <span class="receipt-item-name">${escapeHtml(g.dishName)}${kidTag}</span>
+          </div>`;
+          if (g.excludeAllergenName) {
+            itemsHtml += `<div class="receipt-item-note">&gt;&gt; SENZA ${escapeHtml(g.excludeAllergenName)}</div>`;
+          }
+          if (g.lactoseFree) {
+            itemsHtml += `<div class="receipt-item-note">&gt;&gt; MOZZARELLA SENZA LATTOSIO</div>`;
+          }
+          if (g.pizzaSide) {
+            itemsHtml += `<div class="receipt-item-side">+ ${escapeHtml(g.pizzaSide)}</div>`;
+          }
+          if (g.alternativeDish) {
+            itemsHtml += `<div class="receipt-item-alt">&gt;&gt; ALTERNATIVA: ${escapeHtml(g.alternativeDish)}</div>`;
+          }
+        });
+        
+        const pagebreakClass = familyIndex > 0 ? 'receipt-card receipt-pagebreak' : 'receipt-card';
+        
+        html += `
+          <div class="${pagebreakClass}">
+            <div class="receipt-date">${dateLabel}</div>
+            <div class="receipt-family">${escapeHtml(o.family)}</div>
+            <div class="receipt-notes-space receipt-notes-top"></div>
+            <div class="receipt-divider">================================</div>
+            <div class="receipt-section">--- MENU PIZZA ---</div>
+            ${itemsHtml}
             <div class="receipt-divider">================================</div>
             <div class="receipt-notes-space"></div>
             <div class="receipt-cut">- - - - - - ✂ - - - - - -</div>
