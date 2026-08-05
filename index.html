@@ -2286,6 +2286,24 @@ body.print-mode.receipt-mode #print-overlay {
         </div>
       </div>
       
+      <div id="pizza-party-day-block" style="background: linear-gradient(135deg, rgba(40,96,152,0.08) 0%, rgba(140,110,74,0.06) 100%); border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <div style="font-size: 22px;">🍕</div>
+        <div style="flex: 1; min-width: 180px;">
+          <div style="font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--ink);">Giorno del Pizza Party Mini Club</div>
+          <div style="font-size: 11px; color: var(--ink-muted);">In questo giorno le famiglie con bambini possono iscriverli al Pizza Party</div>
+        </div>
+        <select id="pizza-party-day-select" onchange="savePizzaPartyDay(this.value)" style="padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 8px; font-family: inherit; font-size: 14px; background: var(--paper); cursor: pointer;">
+          <option value="-1">Disattivato</option>
+          <option value="1">Lunedì</option>
+          <option value="2">Martedì</option>
+          <option value="3">Mercoledì</option>
+          <option value="4">Giovedì</option>
+          <option value="5">Venerdì</option>
+          <option value="6">Sabato</option>
+          <option value="0">Domenica</option>
+        </select>
+      </div>
+      
       <div class="day-tabs" id="day-tabs"></div>
       
       <div id="day-editor"></div>
@@ -2623,18 +2641,22 @@ onSnapshot(doc(fbDb, 'config', 'pizza'), (docSnap) => {
 });
 
 // --- SINCRONIZZAZIONE CONFIG GENERAL (lettura globale) ---
-// Documento: config/general con struttura: { switchHour: 18, switchMinute: 0 }
-// Insieme = ora del giorno (HH:MM) in cui passa al menù del giorno dopo
-DB.generalConfig = { switchHour: 18, switchMinute: 0 };
+// Documento: config/general con struttura:
+//   { switchHour: 18, switchMinute: 0, pizzaPartyDay: 3 }
+// switchHour/Minute = ora del giorno (HH:MM) in cui passa al menù del giorno dopo
+// pizzaPartyDay = giorno della settimana del Pizza Party Mini Club
+//   (0=domenica, 1=lunedì ... 6=sabato; -1 = disattivato)
+DB.generalConfig = { switchHour: 18, switchMinute: 0, pizzaPartyDay: 3 };
 onSnapshot(doc(fbDb, 'config', 'general'), (docSnap) => {
   if (docSnap.exists()) {
     const data = docSnap.data();
     DB.generalConfig = {
       switchHour: typeof data.switchHour === 'number' ? data.switchHour : 18,
-      switchMinute: typeof data.switchMinute === 'number' ? data.switchMinute : 0
+      switchMinute: typeof data.switchMinute === 'number' ? data.switchMinute : 0,
+      pizzaPartyDay: typeof data.pizzaPartyDay === 'number' ? data.pizzaPartyDay : 3
     };
   } else {
-    DB.generalConfig = { switchHour: 18, switchMinute: 0 };
+    DB.generalConfig = { switchHour: 18, switchMinute: 0, pizzaPartyDay: 3 };
   }
   DB._notifyListeners();
 }, (err) => {
@@ -3574,10 +3596,14 @@ function updatePizzaPartyVisibility() {
   if (!box) return;
   const dateKey = getTargetDate();
   const dayOfWeek = new Date(dateKey + 'T00:00:00').getDay();
-  const isWednesday = (dayOfWeek === 3);
+  // Giorno del Pizza Party configurabile da admin (default mercoledì = 3, -1 = disattivato)
+  const partyDay = (DB.generalConfig && typeof DB.generalConfig.pizzaPartyDay === 'number')
+    ? DB.generalConfig.pizzaPartyDay
+    : 3;
+  const isPartyDay = (partyDay >= 0 && dayOfWeek === partyDay);
   const children = parseInt(document.getElementById('guest-children')?.value) || 0;
-  // Mostra il box solo se è mercoledì E la famiglia ha almeno un bambino
-  if (isWednesday && children > 0) {
+  // Mostra il box solo se è il giorno del pizza party E la famiglia ha almeno un bambino
+  if (isPartyDay && children > 0) {
     box.classList.remove('hidden');
     // Se non c'è ancora nessun campo, ne mostro uno vuoto di partenza
     if (pizzaPartyKids.length === 0) {
@@ -4466,9 +4492,12 @@ function submitOrder() {
     }
   });
   
-  // Nomi bambini pizza party mini club (solo mercoledì, solo nomi non vuoti)
+  // Nomi bambini pizza party mini club (solo nel giorno configurato, solo nomi non vuoti)
   const dayOfWeek = new Date(dateKey + 'T00:00:00').getDay();
-  const pizzaPartyNames = (dayOfWeek === 3)
+  const partyDay = (DB.generalConfig && typeof DB.generalConfig.pizzaPartyDay === 'number')
+    ? DB.generalConfig.pizzaPartyDay
+    : 3;
+  const pizzaPartyNames = (partyDay >= 0 && dayOfWeek === partyDay)
     ? pizzaPartyKids.map(n => (n || '').trim()).filter(n => n.length > 0)
     : [];
   
@@ -4759,6 +4788,7 @@ function showAdminTab(tab) {
   if (tab === 'menu') {
     renderDayTabs();
     refreshSwitchHourUI();
+    refreshPizzaPartyDayUI();
   }
   if (tab === 'pizza') renderPizzaConfigEditor();
 }
@@ -5325,11 +5355,53 @@ async function toggleSwitchHourLock() {
     
     DB.generalConfig.switchHour = hour;
     DB.generalConfig.switchMinute = minute;
-    await DB.saveGeneralConfig({ switchHour: hour, switchMinute: minute });
+    // Salvo l'intera config per non perdere gli altri campi (es. pizzaPartyDay)
+    await DB.saveGeneralConfig({ 
+      switchHour: hour, 
+      switchMinute: minute,
+      pizzaPartyDay: (typeof DB.generalConfig.pizzaPartyDay === 'number') ? DB.generalConfig.pizzaPartyDay : 3
+    });
     switchHourUnlocked = false;
     refreshSwitchHourUI();
     showToast(`Orario di switch impostato alle ${String(hour).padStart(2,'0')}:${String(minute).padStart(2,'0')}`);
   }
+}
+
+// ========================================================================
+// PIZZA PARTY MINI CLUB — giorno della settimana configurabile
+// ========================================================================
+const PIZZA_PARTY_DAY_LABELS = {
+  '-1': 'disattivato',
+  '0': 'domenica', '1': 'lunedì', '2': 'martedì', '3': 'mercoledì',
+  '4': 'giovedì', '5': 'venerdì', '6': 'sabato'
+};
+
+function refreshPizzaPartyDayUI() {
+  const sel = document.getElementById('pizza-party-day-select');
+  if (!sel) return;
+  const day = (DB.generalConfig && typeof DB.generalConfig.pizzaPartyDay === 'number')
+    ? DB.generalConfig.pizzaPartyDay
+    : 3;
+  sel.value = String(day);
+}
+
+async function savePizzaPartyDay(value) {
+  const day = parseInt(value);
+  if (isNaN(day) || day < -1 || day > 6) {
+    showToast('Giorno non valido');
+    return;
+  }
+  DB.generalConfig.pizzaPartyDay = day;
+  // Salvo l'intera config per non perdere l'orario di switch
+  await DB.saveGeneralConfig({
+    switchHour: (typeof DB.generalConfig.switchHour === 'number') ? DB.generalConfig.switchHour : 18,
+    switchMinute: (typeof DB.generalConfig.switchMinute === 'number') ? DB.generalConfig.switchMinute : 0,
+    pizzaPartyDay: day
+  });
+  const label = PIZZA_PARTY_DAY_LABELS[String(day)] || '';
+  showToast(day === -1 
+    ? 'Pizza Party Mini Club disattivato' 
+    : `Pizza Party Mini Club impostato al ${label}`);
 }
 
 async function togglePublish() {
@@ -6775,6 +6847,7 @@ DB.onUpdate(() => {
       renderDayTabs(); // include renderDayEditor
       // Aggiorno UI switch hour solo se NON è in modalità modifica
       if (!switchHourUnlocked) refreshSwitchHourUI();
+      refreshPizzaPartyDayUI();
     } else if (activeTab === 'pizza') {
       if (isAdminTyping) return;
       renderPizzaConfigEditor();
@@ -6813,7 +6886,7 @@ Object.assign(window, {
   toggleCategory, togglePublish, addDish, updateDish, removeDish,
   updateDishAlternative,
   copyFromPreviousWeek, exportQR, togglePizzaCategory,
-  toggleSwitchHourLock,
+  toggleSwitchHourLock, savePizzaPartyDay,
   // Admin menù pizza
   addPizzaItem, updatePizzaItem, removePizzaItem,
   openPizzaItemAllergenPicker, savePizzaItemAllergens,
